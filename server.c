@@ -1,5 +1,6 @@
 #include "networking.h"
 
+
 char * rot13(char*s){
   int x = 13;
 
@@ -23,6 +24,7 @@ char * rot13(char*s){
   }
   return s;
 }
+
 
 //void sig_handler(int signo){
 //  err(signo, "Caught signal: ");
