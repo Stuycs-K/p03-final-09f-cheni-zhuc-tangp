@@ -47,14 +47,11 @@ int server_setup() {
 int server_tcp_handshake(int listen_socket){
     int client_socket;
 
-    //accept() the client connection
     socklen_t sock_size; //addrinfo
     struct sockaddr_storage client_address;
     sock_size = sizeof(client_address);
     client_socket = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size); //stalls here
     if (client_socket == -1) err(client_socket, "In Server tcp handshake");
-    //printf("ckpt in server handshake");
-    //fflush(stdout);
 
     return client_socket;
 }
@@ -72,7 +69,6 @@ int client_tcp_handshake(char * server_address) {
   hints->ai_socktype = SOCK_STREAM; //TCP socket
   hints->ai_flags = 0;
   getaddrinfo(server_address, PORT, hints, &results);  //Server sets node to NULL
-  //getaddrinfo("127.0.0.1", PORT, hints, &results);
 
   int serverd;//store the socket descriptor here
   //create the socket

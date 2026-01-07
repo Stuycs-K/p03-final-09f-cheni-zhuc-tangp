@@ -25,27 +25,23 @@ char * rot13(char*s){
   return s;
 }
 
-
-//void sig_handler(int signo){
-//  err(signo, "Caught signal: ");
-//  exit(1);
-//}
-
 void subserver_logic(int client_socket){
+    int to_parent[2];
+    if (pipe(to_parent) == -1) err(to_parent[0], "In subserver_logic");
+
+    int to_child[2];
+    if (pipe(to_child) == -1) err(to_child[0], "In subserver_logic");
+
     int f = fork();
-    //printf("ckpt in subserver logic");
-    //fflush(stdout);
+
     if (f == 0){ //child
       char message[256] = "";
       char response[256] = "";
 
+      close(to_parent[0]);
+      close(to_child[1]);
 
       while (1){
-        //int bytes_read = read(client_socket, message, sizeof(message));
-        //if (bytes_read == 0) {
-        //  err(client_socket, "In server sublogic: ");
-        //  exit(1);
-        //}
         int recv_code = recv(client_socket, message, sizeof(message), 0);
         if(recv_code == 0){
           printf("socket closed\n");
@@ -53,41 +49,37 @@ void subserver_logic(int client_socket){
         }
         if (recv_code == -1) err(recv_code, "In subserver logic");
 
-        //modify response with rot13
-        strcpy(response, rot13(message));
-        //response[bytes_read] = '\0';
-        //int bytes_wrote = write(client_socket, response, sizeof(response));
-        //if (bytes_wrote == -1) {
-        //  err(bytes_wrote, "In server sublogic: ");
-        //  exit(1);
-        //}
-        //printf("%s\n", message);
-        int send_code = send(client_socket, response, sizeof(response), 0);
-        if (send_code == -1) err(send_code, "In subserver logic");
+        //strcpy(response, rot13(message));
 
-        //signal(SIGINT, sig_handler);
+        //int send_code = send(client_socket, response, sizeof(response), 0);
+        //if (send_code == -1) err(send_code, "In subserver logic");
       }
       exit(0);
     }
-    else{
-      //printf("Ready for next client\n");
-      //fflush(stdout);
+    else{ //parent
+      close(to_parent[1]);
+      close(to_child[0]);
+
       close(client_socket);
       }
 }
 
 int main(int argc, char *argv[] ) {
+  int fds[100]; //store all client fds
+  int count = 0;
+
   int listen_socket = server_setup();
   while(1){
-    //printf("ckpt before server handshake\n"); //does not print but client still returns
-    //fflush(stdout);
-    int client_socket = server_tcp_handshake(listen_socket); // stalls here
-    if (client_socket == -1) err(client_socket, "In server main");
+    int client_socket = server_tcp_handshake(listen_socket); 
+    if (client_socket == -1) err(client_socket, "In server main"); //maybe build socket fd set here 
+    fds[count++] = client_socket;
+
     printf("successful server handshake\n");
     fflush(stdout);
-    //printf("client_socket_fd: %d\n", client_socket);
-    //fflush(stdout);
 
+    /*
+    Add storage for socket fd to send client msg across, what if new person joins? Bc forked process has copy of old socket fd only
+    */
     subserver_logic(client_socket); //client_socket is server socket
 
   }
