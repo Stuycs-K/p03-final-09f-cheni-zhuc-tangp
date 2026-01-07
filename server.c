@@ -32,12 +32,11 @@ void subserver_logic(int client_socket){
     int to_child[2];
     if (pipe(to_child) == -1) err(to_child[0], "In subserver_logic");
 
+    char message[256] = "";
+    char response[256] = "";
+
     int f = fork();
-
     if (f == 0){ //child
-      char message[256] = "";
-      char response[256] = "";
-
       close(to_parent[0]);
       close(to_child[1]);
 
@@ -60,12 +59,18 @@ void subserver_logic(int client_socket){
       close(to_parent[1]);
       close(to_child[0]);
 
+      char message[256] = "";
+      char response[256] = "";
+
+      int bytes_wrote = write(to_parent[0], message, strlen(message)); //up to parent to redistribute
+      if (bytes_wrote == -1) err(bytes_wrote, "In subserver logic");
+
       close(client_socket);
       }
 }
 
 int main(int argc, char *argv[] ) {
-  int fds[100]; //store all client fds
+  int fds[100] = {0}; //store all client fds
   int count = 0;
 
   int listen_socket = server_setup();
@@ -82,5 +87,12 @@ int main(int argc, char *argv[] ) {
     */
     subserver_logic(client_socket); //client_socket is server socket
 
+    int bytes_read = read(fds[0], message, sizeof(message)); //from first client for now
+    if (bytes_read == -1) err(bytes_read, "In main server logic");
+    //distribute to all clients
+    for (int i = 0; i < count; i++){
+      int bytes_wrote = write(fds[i], message, strlen(message));
+      if (bytes_wrote == -1) err(bytes_wrote, "In main server logic");
+    }
   }
 }
