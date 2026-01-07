@@ -1,28 +1,30 @@
 #include "networking.h"
 
-// char * rot13(char*s){
-//   int x = 13;
-//
-//   for (int i = 0; i < strlen(s); i++){
-//     if (s[i] - 'a' < 26 && s[i] - 'a' >= 0){ //if diff in range then letter is lowercase
-//       if (s[i] + x > 'z'){
-//         s[i] = s[i] + x - 26;
-//       }
-//       else{
-//         s[i] = s[i] + x;
-//       }
-//     }
-//     else if (s[i] - 'A' < 26 && s[i] - 'A' >= 0){ //if diff in range then letter is uppercase
-//       if (s[i] + x > 'Z'){
-//         s[i] = s[i] + x - 26;
-//       }
-//       else{
-//         s[i] = s[i] + x ;
-//       }
-//     }
-//   }
-//   return s;
-// }
+
+char * rot13(char*s){
+  // int x = 13;
+
+  // for (int i = 0; i < strlen(s); i++){
+  //   if (s[i] - 'a' < 26 && s[i] - 'a' >= 0){ //if diff in range then letter is lowercase
+  //     if (s[i] + x > 'z'){
+  //       s[i] = s[i] + x - 26;
+  //     }
+  //     else{
+  //       s[i] = s[i] + x;
+  //     }
+  //   }
+  //   else if (s[i] - 'A' < 26 && s[i] - 'A' >= 0){ //if diff in range then letter is uppercase
+  //     if (s[i] + x > 'Z'){
+  //       s[i] = s[i] + x - 26;
+  //     }
+  //     else{
+  //       s[i] = s[i] + x ;
+  //     }
+  //   }
+  // }
+  return s;
+}
+
 
 //void sig_handler(int signo){
 //  err(signo, "Caught signal: ");

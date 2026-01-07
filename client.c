@@ -4,9 +4,29 @@ void clientLogic(int server_socket){
   //passing in client which is same as server socket
   char message[256] = "";
   char response[256] = "";
+  char username[256] = "";
+
+  printf("Enter username: ");
+  fflush(stdout);
+  if (fgets(username, sizeof(username), stdin) == NULL) exit(0);
+  username[strcspn(username, "\n")] = '\0';
+
+  int send_code = send(server_socket, username, sizeof(username), 0);
+  if (send_code == -1) err(send_code, "In ClientLogic");
+
+  int recv_code = recv(server_socket, username, sizeof(username), 0);
+  if (recv_code == 0){
+    printf("socket closed\n");
+    fflush(stdout);
+    exit(1);
+  }
+  if (recv_code == -1) err(recv_code, "In ClientLogic");
+  printf("Name: %s\n", username);
+  fflush(stdout);
+
 
   while(1){
-    printf("Enter Message: \n");
+    printf("%s: ", username);
     fflush(stdout);
     char * fgot = fgets(message, sizeof(message), stdin);
     if (fgot == NULL){
