@@ -14,13 +14,12 @@ void clientLogic(int server_socket){
       exit(1);
     }
     message[strcspn(message, "\n")] = '\0';
-
     int send_code = send(server_socket, message, sizeof(message), 0);
     if (send_code == -1) err(send_code, "In ClientLogic");
 
     int recv_code = recv(server_socket, response, sizeof(response), 0);
     if (recv_code == 0){
-      printf("socket closed\n");
+      printf("server closed\n");
       fflush(stdout);
       exit(1);
     }
@@ -30,8 +29,6 @@ void clientLogic(int server_socket){
     }
     close(server_socket);
 }
-
-
 
 int main(int argc, char *argv[] ) {
   char* IP = "127.0.0.1";

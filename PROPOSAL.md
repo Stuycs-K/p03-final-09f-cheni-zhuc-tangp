@@ -6,8 +6,7 @@
 - Ivan Chen 
 
 ## Intentions:
-We will build a terminal-based, multi-client chat system with a central server. Multiple clients can connect concurrently, choose usernames, and send messages that are broadcast to everyone.
-(and optionally, extend such that user can provide paths on the local disk and/or smaller, more private rooms)
+We will build a terminal-based, multi-client chat system with a central server. Multiple clients can connect concurrently, choose usernames, and send messages that are broadcast to everyone. Additionally clients will be able to transfer large files to and from the server.
 
 ## Intended usage:
 
@@ -20,79 +19,71 @@ We will build a terminal-based, multi-client chat system with a central server. 
 - `WHO`: (list users)
 - `QUIT`: (disconnect with sighandler)
 
-Extra room commands:
-- `JOIN <room>`: where <room> is WKP? 
-- `LEAVE`: Leave
+
 
 ## Technical Details:
 ### Key systems concepts used
-1. **Sockets:** Client/server communication 
-2. **Processes (`fork()`)):** Server forks a child process to handle each connected client
-3. **Pipes:** Client-handler processes communicate with a parent “router” process using pipes so messages can be broadcast across all clients and rooms.
-4. **Files + `stat()`:** Do something with a given path to a file stored on disk. stat() for metadata and bytes
-5. **Signals:** Server handles `SIGINT`/`SIGTERM` for graceful shutdown, notify clients, close sockets, flush logs, avoid zombie processes with `SIGCHLD`/`waitpid`.
-
+1. **Sockets:** Client/server communication
+2. **Finding Info about files:** Get bytes to recv for file transfer, exist or not
+3. **Signals:** Server handles `SIGINT`/`SIGTERM` for graceful shutdown, notify clients, close sockets, flush logs, avoid zombie processes with `SIGCHLD`/`waitpid`.
+4. **Working With Files:**: Log files, file transfer opening and reading files into buffer
 
 ### Server architecture
-We will implement either:
-- **Fork-per-client design:**
+We will implement:
+- **Select Server design:**
   - Parent accepts connections and manages global rooms and connected clients
-  - For each client, parent forks a handler process.
-  - Each handler reads client commands and forwards to the parent over a pipe.
-  - Parent broadcasts outgoing messages to all relevant handlers (also over pipes).
-- Message routing supports:
-  - global broadcast
-  - server announcements (join/leave, errors)?
+  - The parent collects Client_ids, reading the only readble listen socket
+  - Parent broadcasts outgoing messages to all clients
+- (And optionally):
+  - server commands: kick, announcement
+  - server broadcasting to client private
 
 
 ### MVP:
 Client → Server:
 - `NAME <username>`
 - `MSG <text...>`
-- `WHO`
+- `WHO`: lists people
 - `QUIT`
-Optional:
-- `JOIN <room>`
-- `LEAVE`
 
 Server → Client:
-- `WELCOME <client_id>`
-- `OK <message>`
-- `ERR <reason>`
-- `MSG <username> <text...>`: (admin messaging client)
-- `JOIN/LEAVE/SHUTDOWN'
-Optional:
+- sends recv() data to other clients
+Optionally:
+- `MSG <text>`: psa
+- `MSG <username> <text...>`: (server messaging client privtely)
 - `ROOM <room> MSG <username> <text...>`
 
 ### Responsibilities
 - **Clayton Zhu:**
-  - socket setup, accept loop, fork model, pipe setup, client lifecycle
+  - socket setup, accept loop, file transfer, parsing commands, client send and recieve
 - **Ivan Chen:**
-  - client, command parsing, display formatting, reconnect behavior
+  - research ncurses, display formatting, reconnect behavior
 - **Patrick Tang:**
-  - `stat()` formatting, graceful shutdown, and leftover tasks directed by other partners
+  - select server, parsing commands, formatting
 - **Shared:**
   - testing, README
 
 ### Stretch goals (only after MVP is stable)
-- Rooms with access control and `/invite`
+- Non-Global Private rooms
 - Persistent chat logs with rotation
 - Rate limiting / spam protection
-- Server-side moderation commands (kick/mute)
+- Server-side moderation commands (kick/mute/psa/dm)
 
 ## Intended pacing 
 
 **Day 1–2**
 - Repo setup (Makefile, basic structure), documentation
 - Basic server/client connect, `NAME`, `MSG`, `QUIT`
+- With simple output
 
 **Day 3–4**
-- Concurrency model completed fork + pipes
 - `WHO` and join/leave notices 
-- Stress test with multiple clients 
+- Stress test with multiple clients
+- Start ncurses implementation, silently rewriting prev code 
 
 **Day 5–6** 
 - Improved parsing and error handling
+- implement ncurses
 
 **Day 7–8**
 - Handle disk path

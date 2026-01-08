@@ -3,7 +3,6 @@
 
 char * rot13(char*s){
   int x = 13;
-
   for (int i = 0; i < strlen(s); i++){
     if (s[i] - 'a' < 26 && s[i] - 'a' >= 0){ //if diff in range then letter is lowercase
       if (s[i] + x > 'z'){
@@ -43,7 +42,7 @@ void subserver_logic(int client_socket){
       while (1){
         int recv_code = recv(client_socket, message, sizeof(message), 0);
         if(recv_code == 0){
-          printf("socket closed\n");
+          printf("client exit\n");
           exit(1);
         }
         if (recv_code == -1) err(recv_code, "In subserver logic");
@@ -66,7 +65,7 @@ void subserver_logic(int client_socket){
       if (bytes_wrote == -1) err(bytes_wrote, "In subserver logic");
 
       close(client_socket);
-      }
+    }
 }
 
 int main(int argc, char *argv[] ) {
