@@ -2,25 +2,26 @@
 
 
 char * rot13(char*s){
-  int x = 13;
-  for (int i = 0; i < strlen(s); i++){
-    if (s[i] - 'a' < 26 && s[i] - 'a' >= 0){ //if diff in range then letter is lowercase
-      if (s[i] + x > 'z'){
-        s[i] = s[i] + x - 26;
-      }
-      else{
-        s[i] = s[i] + x;
-      }
-    }
-    else if (s[i] - 'A' < 26 && s[i] - 'A' >= 0){ //if diff in range then letter is uppercase
-      if (s[i] + x > 'Z'){
-        s[i] = s[i] + x - 26;
-      }
-      else{
-        s[i] = s[i] + x ;
-      }
-    }
-  }
+  // int x = 13;
+
+  // for (int i = 0; i < strlen(s); i++){
+  //   if (s[i] - 'a' < 26 && s[i] - 'a' >= 0){ //if diff in range then letter is lowercase
+  //     if (s[i] + x > 'z'){
+  //       s[i] = s[i] + x - 26;
+  //     }
+  //     else{
+  //       s[i] = s[i] + x;
+  //     }
+  //   }
+  //   else if (s[i] - 'A' < 26 && s[i] - 'A' >= 0){ //if diff in range then letter is uppercase
+  //     if (s[i] + x > 'Z'){
+  //       s[i] = s[i] + x - 26;
+  //     }
+  //     else{
+  //       s[i] = s[i] + x ;
+  //     }
+  //   }
+  // }
   return s;
 }
 
@@ -38,7 +39,23 @@ void subserver_logic(int client_socket){
         if (recv_code == -1) err(recv_code, "In subserver logic");
 
         //modify response with rot13
-        strcpy(response, rot13(message));
+        if (strncmp(message, "NAME ", 5) == 0) {
+          strcpy(response, message + 5);
+        } else if (strncmp(message, "MSG ", 4) == 0) {
+          strcpy(response, message + 4);
+        } else if (strncmp(message, "WHO", 3) == 0) {
+          strcpy(response, "Server list");
+        } else if (strncmp(message, "QUIT", 4) == 0) {
+          strcpy(response, "Quitting");
+          exit(0);
+        } else strcpy(response, "Invalid command");
+        //response[bytes_read] = '\0';
+        //int bytes_wrote = write(client_socket, response, sizeof(response));
+        //if (bytes_wrote == -1) {
+        //  err(bytes_wrote, "In server sublogic: ");
+        //  exit(1);
+        //}
+        printf("%s\n", message);
         int send_code = send(client_socket, response, sizeof(response), 0);
         if (send_code == -1) err(send_code, "In subserver logic");
       }
