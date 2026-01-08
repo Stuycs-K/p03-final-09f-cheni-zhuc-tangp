@@ -54,18 +54,15 @@ void subserver_logic(int client_socket){
         if (recv_code == -1) err(recv_code, "In subserver logic");
 
         //modify response with rot13
-        char * cmd;
-        strcpy(cmd, message);
-        if(strstr(message, "NAME")){
-          strsep(&cmd, "NAME");
-          strcpy(response, cmd);
-        }else if(strstr(message, "MSG")){
-          strcpy(response, message);
-        }else if(strstr(message, "WHO")){
+        if (strncmp(message, "NAME ", 5) == 0) {
+          strcpy(response, message + 5);
+        } else if (strncmp(message, "MSG ", 4) == 0) {
+          strcpy(response, message + 4);
+        } else if (strncmp(message, "WHO", 3) == 0) {
 
-        }else if(strstr(message, "QUIT")){
+        } else if (strncmp(message, "QUIT", 4) == 0) {
 
-        }else strcpy(response, "Invalid command");
+        } else strcpy(response, "Invalid command");
         //response[bytes_read] = '\0';
         //int bytes_wrote = write(client_socket, response, sizeof(response));
         //if (bytes_wrote == -1) {
