@@ -84,11 +84,8 @@ int main(int argc, char *argv[] ) {
   }
   int server_socket = client_tcp_handshake(IP); //WHY DOES THIS GO THROUGH BUT SERVER HANDHSKAE STALLLLL;LLLL
   if(server_socket == -1) err(server_socket, "In client: ");
-  //printf("client connected.\n");
-  //fflush(stdout);
-  clientLogic(server_socket); //stalls in this call
+  
+  clientLogic(server_socket); 
 
 
-  //printf("server_socket_fd: %d\n", server_socket);
-  //fflush(stdout);
 }
