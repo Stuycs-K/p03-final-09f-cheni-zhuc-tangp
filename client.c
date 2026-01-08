@@ -4,9 +4,9 @@ void clientLogic(int server_socket){
   //passing in client which is same as server socket
   char message[256] = "";
   char response[256] = "";
-  char username[256] = "";
+  char username[32] = "";
 
-  printf("Enter username: ");
+  printf("Unnamed user: ");
   fflush(stdout);
   if (fgets(username, sizeof(username), stdin) == NULL) exit(0);
   username[strcspn(username, "\n")] = '\0';
@@ -35,7 +35,6 @@ void clientLogic(int server_socket){
 
     if (FD_ISSET(server_socket, &read_fds)) {
       if (recv(server_socket, response, sizeof(response), 0) <= 0) break;
-      printf("%s\n", response);
     }
 
     if (FD_ISSET(STDIN_FILENO, &read_fds)) {

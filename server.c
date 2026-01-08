@@ -59,9 +59,10 @@ void subserver_logic(int client_socket){
         } else if (strncmp(message, "MSG ", 4) == 0) {
           strcpy(response, message + 4);
         } else if (strncmp(message, "WHO", 3) == 0) {
-
+          strcpy(response, "Server list");
         } else if (strncmp(message, "QUIT", 4) == 0) {
-
+          strcpy(response, "Quitting");
+          exit(0);
         } else strcpy(response, "Invalid command");
         //response[bytes_read] = '\0';
         //int bytes_wrote = write(client_socket, response, sizeof(response));
