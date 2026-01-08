@@ -23,7 +23,7 @@ void subserver_logic(int client_socket){
         if (token == NULL) {
           perror("Given empty string!");
         }
-        else{
+        else{ //come back for what to do with commands
           if (strcmp(token, "NAME ") == 0) {
             strcpy(response, message + 5);
           } 
