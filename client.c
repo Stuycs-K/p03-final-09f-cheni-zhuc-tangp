@@ -24,10 +24,26 @@ void clientLogic(int server_socket){
   printf("Name: %s\n", username);
   fflush(stdout);
 
-
+  fd_set read_fds;
   while(1){
+    FD_ZERO(&read_fds);
+    FD_SET(STDIN_FILENO, &read_fds);
+    FD_SET(server_socket, &read_fds);
+    select(server_socket + 1, &read_fds, NULL, NULL, NULL);
     printf("%s: ", username);
     fflush(stdout);
+
+    if (FD_ISSET(server_socket, &read_fds)) {
+      if (recv(server_socket, response, sizeof(response), 0) <= 0) break;
+      printf("%s\n", response);
+    }
+
+    if (FD_ISSET(STDIN_FILENO, &read_fds)) {
+      fgets(message, sizeof(message), stdin);
+      message[strcspn(message, "\n")] = '\0';
+      send(server_socket, message, sizeof(message), 0);
+    }
+
     char * fgot = fgets(message, sizeof(message), stdin);
     if (fgot == NULL){
       perror("Client Closed");
