@@ -82,7 +82,7 @@ int main(int argc, char *argv[] ) {
   if(argc>1){
     IP=argv[1];
   }
-  int server_socket = client_tcp_handshake(IP); //WHY DOES THIS GO THROUGH BUT SERVER HANDHSKAE STALLLLL;LLLL
+  int server_socket = client_tcp_handshake(IP); 
   if(server_socket == -1) err(server_socket, "In client: ");
   
   clientLogic(server_socket); 
