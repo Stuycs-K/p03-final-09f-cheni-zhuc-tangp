@@ -1,19 +1,20 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/QfAIDTGi)
-# PROJECT NAME HERE (CHANGE THIS!!!!!)
- 
-### GROUP NAME HERE (CHANGE THIS!!!!!)
+# Mutli-Client Chatroom Server
 
-Group Members Here (CHANGE THIS!!!!!)
-       
+### Intercontenental Policing Committee
+
+Clayton Zhu, Patrick Tang, Ivan Chen
+
 ### Project Description:
 
-Explain what is this project. (CHANGE THIS!!!!!)
-  
+This project is a multi-client chat system with a central server. Multiple clients can connect concurrently, choose usernames, and send messages that are broadcast to everyone.(and optionally, extend such that user can provide paths on the local disk and/or smaller, more private rooms)
+
 ### Instructions:
 
-How does the user install/compile/run the program. (CHANGE THIS!!!!!)
-How does the user interact with this program? (CHANGE THIS!!!!!)
+The user compile server and client, server is ran with ./server, client is ran with ./client IP
+The user interacts with the program through COMMAND ARG ie NAME clayt, MSG wassabi
 
 ### Resources/ References:
 
-list here(CHANGE THIS!!!!!)
+Beej's guide
+konstantinnovation.github.io
