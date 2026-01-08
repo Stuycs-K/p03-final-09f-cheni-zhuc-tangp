@@ -9,5 +9,7 @@ This document must be updated daily every time you finish a work session.
 - Deciding on architecture: 40 mins, Initially wanted to do semaphores with clients writiing in turns but I don't wanna do semaphores | Also easier to store client fds,  transport that to handler then parent, and then distribute to all handlers </br>
 - Unworking implementation: 10 min, Looked over lab15 on how to do 2-way pipes </br>
 
-### 2026-01-07 - Brief description
-Expanded description including how much time was spent on task.
+### 2026-01-07 - Updated proposal, worked on select()
+- Updated proposal + readme: 45 minutes, Spent most of time thinking ahead of how to do upload and download 
+- Worked on Select(): 40 minutes, cut fork server with subserver logic, tried to figure out where to put fd building and setting function
+- tested Patrick's code: 10 minutes, no compile error but select was used after recv
