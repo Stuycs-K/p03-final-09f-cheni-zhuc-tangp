@@ -49,12 +49,6 @@ void subserver_logic(int client_socket){
           strcpy(response, "Quitting");
           exit(0);
         } else strcpy(response, "Invalid command");
-        //response[bytes_read] = '\0';
-        //int bytes_wrote = write(client_socket, response, sizeof(response));
-        //if (bytes_wrote == -1) {
-        //  err(bytes_wrote, "In server sublogic: ");
-        //  exit(1);
-        //}
         printf("%s\n", message);
         int send_code = send(client_socket, response, sizeof(response), 0);
         if (send_code == -1) err(send_code, "In subserver logic");
