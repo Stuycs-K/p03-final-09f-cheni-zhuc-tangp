@@ -45,12 +45,17 @@ void clientLogic(int server_socket){
     endwin();
 }
 
+
+
 int main(int argc, char *argv[] ) {
   char* IP = "127.0.0.1";
   if(argc>1){
     IP=argv[1];
   }
-  int server_socket = client_tcp_handshake(IP); //WHY DOES THIS GO THROUGH BUT SERVER HANDHSKAE STALLLLL;LLLL
+  int server_socket = client_tcp_handshake(IP);
   if(server_socket == -1) err(server_socket, "In client: ");
-  clientLogic(server_socket); //stalls in this call
+
+  clientLogic(server_socket);
+
+
 }
