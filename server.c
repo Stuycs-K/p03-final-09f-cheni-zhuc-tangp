@@ -52,12 +52,12 @@ void server_logic(int client_socket){
 int main(int argc, char *argv[] ) {
   int listen_socket = server_setup();
   while(1){
-    listen_socket = server_tcp_handshake(listen_socket); // stalls here
-    if (listen_socket == -1) err(listen_socket, "In server main");
+    int client_socket = server_tcp_handshake(listen_socket); // stalls here
+    if (client_socket == -1) err(client_socket, "In server main");
     printf("successful server handshake\n");
     fflush(stdout);
 
-    server_logic(listen_socket);
+    server_logic(client_socket);
   
   }
 }
