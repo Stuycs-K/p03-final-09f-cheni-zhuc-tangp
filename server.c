@@ -28,8 +28,15 @@ char * rot13(char*s){
 void subserver_logic(int client_socket){
     int f = fork();
     if (f == 0){ //child
-      char message[256];
-      char response[256];
+      char message[256] = "";
+      char response[256] = "";
+      char username[256] = "Unnamed";
+
+      recv(client_socket, username, sizeof(username), 0);
+      printf("User joined: %s\n", username);
+      
+      send(client_socket, username, sizeof(username), 0);
+
       while (1){
         int recv_code = recv(client_socket, message, sizeof(message), 0);
         if(recv_code == 0){
@@ -40,13 +47,15 @@ void subserver_logic(int client_socket){
 
         //modify response with rot13
         if (strncmp(message, "NAME ", 5) == 0) {
-          strcpy(response, message + 5);
+          strcpy(username, message + 5);
+          snprintf(response, sizeof(response), "Your name is now %s", username);
         } else if (strncmp(message, "MSG ", 4) == 0) {
           strcpy(response, message + 4);
         } else if (strncmp(message, "WHO", 3) == 0) {
           strcpy(response, "Server list");
         } else if (strncmp(message, "QUIT", 4) == 0) {
           strcpy(response, "Quitting");
+          send(client_socket, response, sizeof(response), 0);
           exit(0);
         } else strcpy(response, "Invalid command");
         //response[bytes_read] = '\0';
