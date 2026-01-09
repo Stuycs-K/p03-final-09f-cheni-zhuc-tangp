@@ -64,8 +64,8 @@ int main(int argc, char *argv[] ) {
     sock_size = sizeof(client_address);
 
     fd_set read_fds, master;
-    FD_ZERO(&read_fds);
-    FD_SET(listen_socket, &read_fds);
+    FD_ZERO(&master);
+    FD_SET(listen_socket, &master);
     int max_fd = listen_socket;
 
     char buff[1025]="";
@@ -73,30 +73,25 @@ int main(int argc, char *argv[] ) {
     while(1){
         read_fds = master;
 
-        int ready = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
-        err(ready, "In server main");
+        int readables = select(max_fd+1, &read_fds, NULL, NULL, NULL);
+        err(readables, "In server main");
 
         // if socket
         if (FD_ISSET(listen_socket, &read_fds)) {
             //accept the connection
             int client_fd = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
             err(client_fd, "In server Main");
+            
             printf("Connected, waiting for data.\n");
+            fflush(stdout);
 
-            FD_SET(client_fd, &read_fds);
+            FD_SET(client_fd, &master);
             if (client_fd > max_fd) max_fd = client_fd;
-
-            ////read the whole buff
-            //read(client_socket,buff, sizeof(buff));
-            ////trim the string
-            //buff[strlen(buff)-1]=0; //clear newline
-            //if(buff[strlen(buff)-1]==13){
-            //    //clear windows line ending
-            //    buff[strlen(buff)-1]=0;
-            //}
 
             printf("\nRecieved from client_fd %d: %s\n",client_fd, buff);
             fflush(stdout);
+
+            if (--readables == 0) continue;
         }
 
         for (int fd = 0; fd <= max_fd; fd++){
@@ -105,22 +100,25 @@ int main(int argc, char *argv[] ) {
 
           char buf[256];
           int recv_code = recv(fd, buf, sizeof(buf) -1, 0);
-
+          
           if (recv_code == 0){ //Client's Socket closed
             printf("Client disconnected: fd = %d\n", fd);
             fflush(stdout);
             close(fd);
-            FD_CLR(fd, &read_fds);
+            FD_CLR(fd, &master);
           }
           else if (recv_code < 0){ //err
             err(recv_code, "In Server Main");
             close(fd);
-            FD_CLR(fd, &read_fds);
+            FD_CLR(fd, &master);
           }
           else{ //data
-            buf[recv_code + 1] = '\0';
-            printf("%s", buf); //replace with logic function
+            buf[recv_code] = '\0';
+            printf("%s\n", buf); //replace with logic function
+            fflush(stdout);
           }
+
+          if (--readables == 0) break;
         }
     }
 
@@ -131,4 +129,5 @@ int main(int argc, char *argv[] ) {
     //fflush(stdout);
 
     //server_logic(client_socket);
+    return 0;
 }
