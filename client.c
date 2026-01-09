@@ -5,6 +5,7 @@ void clientLogic(int server_socket){
   char message[256];
   char response[256];
 
+  while(1){
   printf("Enter Message: ");
   fflush(stdout);
   char * fgot = fgets(message, sizeof(message), stdin);
@@ -14,20 +15,17 @@ void clientLogic(int server_socket){
   }
   message[strcspn(message, "\n")] = '\0';
 
-  while(1){
-    int bytes_wrote = write(server_socket, message, strlen(message)); //stalls here
-    if (bytes_wrote == -1) err(bytes_wrote, "In clientLogic: ");
-    //printf("ckpt in client sublogic");
-    //fflush(stdout);
+  int bytes_wrote = send(server_socket, message, strlen(message), 0); //stalls here
+  if (bytes_wrote == -1) err(bytes_wrote, "In clientLogic: ");
 
-    int bytes_read = read(server_socket, response, sizeof(response));
-    if (bytes_read == -1) err(bytes_read, "in clientLogic: ");
-    printf("[Client received]: %s\n", response);
-    fflush(stdout);
-    sleep(1);
-    //read(from_server, &clear_read_buff, sizeof(int)); //clear pipe
-    }
-    close(server_socket);
+  //int bytes_read = read(server_socket, response, sizeof(response));
+  //if (bytes_read == -1) err(bytes_read, "in clientLogic: ");
+
+  //printf("[Client received]: %s\n", response);
+  //fflush(stdout);
+  //sleep(1);
+  }
+  close(server_socket);
 }
 
 

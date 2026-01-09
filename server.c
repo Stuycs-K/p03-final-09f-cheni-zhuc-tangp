@@ -12,7 +12,12 @@ void server_logic(int client_socket){
         //printf("socket closed\n");
         //exit(1);
       }
-      if (recv_code == -1) err(recv_code, "In subserver logic");
+      if (recv_code == 0){
+        printf("Client disconnected");
+        fflush(stdout);
+        break;
+      }
+      if (recv_code < 0) err(recv_code, "In subserver logic");
 
       char *p = message;
       char * token = strsep(&p, " ");
