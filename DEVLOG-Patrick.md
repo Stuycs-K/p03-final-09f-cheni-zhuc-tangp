@@ -10,3 +10,6 @@ Upon connecting with the server as a client, you will be prompted to enter a use
 ### 2024-01-07 - Select and Client Command
 Changed logic to work with select taught in class(~45 minutes)
 Started to handle client commands in the server(~30 minutes)
+
+### 2024-01-08 - Name and Quit
+Changed how usernames are handled and added quitting capabilities(~45 minutes)
