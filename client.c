@@ -21,16 +21,17 @@ void clientLogic(int server_socket){
     int send_code = send(server_socket, message, sizeof(message), 0);
     if (send_code == -1) err(send_code, "In ClientLogic");
 
-    int recv_code = recv(server_socket, response, sizeof(response), 0);
-    if (recv_code == 0){
-      printw("server closed\n");
-      refresh();
-      endwin();
-      fflush(stdout);
-      exit(1);
-    }
-    if (recv_code == -1) err(recv_code, "In ClientLogic");
-    printw("received: %s\n", response);
+    // int recv_code = recv(server_socket, response, sizeof(response), 0);
+
+    // if (recv_code == 0){
+    //   refresh();
+    //   endwin();
+    //   printf("server closed\n");
+    //   fflush(stdout);
+    //   exit(1);
+    // }
+    // if (recv_code == -1) err(recv_code, "In ClientLogic");
+    printf("received: %s\n", response);
     refresh();
     fflush(stdout);
     endwin();
