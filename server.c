@@ -57,15 +57,73 @@ void server_logic(int client_socket){
 }
 
 int main(int argc, char *argv[] ) {
-  int listen_socket = server_setup();
-  while(1){
-    int client_socket = server_tcp_handshake(listen_socket); 
-    if (client_socket == -1) err(client_socket, "In server main");
+    int listen_socket = server_setup();
+    
+    socklen_t sock_size;
+    struct sockaddr_storage client_address;
+    sock_size = sizeof(client_address);
 
-    printf("successful server handshake\n");
-    fflush(stdout);
+    fd_set read_fds;
+    FD_ZERO(&read_fds);
+    FD_SET(listen_socket, &read_fds);
 
-    server_logic(client_socket);
+    char buff[1025]="";
+
+    while(1){
+        int ready = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
+        err(ready, "In server main");
+
+        // if socket
+        if (FD_ISSET(listen_socket, &read_fds)) {
+            //accept the connection
+            int client_socket = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
+            err(client_socket, "In server Main");
+            printf("Connected, waiting for data.\n");
+
+            //read the whole buff
+            read(client_socket,buff, sizeof(buff));
+            //trim the string
+            buff[strlen(buff)-1]=0; //clear newline
+            if(buff[strlen(buff)-1]==13){
+                //clear windows line ending
+                buff[strlen(buff)-1]=0;
+            }
+
+            printf("\nRecieved from client[%d]'%s'\n",client_fd, buff);
+            fflush(stdout);
+        }
+
+        for (int fd = 0; fd <= listen_socket; fd++){
+          if (fd == listen-socket) continue;
+          if (!FD_ISSET(fd, &read_fds)) continue;
+
+          char buf[256];
+          int recv_code = recv(fd, buf, sizeof(buf) -1, 0);
+
+          if (recv_code == 0){ //Client's Socket closed
+            printf("Client disconnected: fd = %d\n", fd);
+            fflush(stdout);
+            close(fd);
+          }
+          else if (recv_code < 0){ //err
+            err(recv_code, "In Server Main");
+            close(fd);
+          }
+          else{ //data
+            buf[recv_code] = '\0';
+            //do whatever else whatnot
+          }
+    }
+
+
+
+    
+    //int client_socket = server_tcp_handshake(listen_socket); 
+    //if (client_socket == -1) err(client_socket, "In server main");
+
+    //printf("successful server handshake\n");
+    //fflush(stdout);
+
+    //server_logic(client_socket);
   
-  }
 }
