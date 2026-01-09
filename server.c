@@ -89,12 +89,12 @@ int main(int argc, char *argv[] ) {
                 buff[strlen(buff)-1]=0;
             }
 
-            printf("\nRecieved from client[%d]'%s'\n",client_fd, buff);
+            printf("\nRecieved from client[%d]'%s'\n",client_socket, buff);
             fflush(stdout);
         }
 
         for (int fd = 0; fd <= listen_socket; fd++){
-          if (fd == listen-socket) continue;
+          if (fd == listen_socket) continue;
           if (!FD_ISSET(fd, &read_fds)) continue;
 
           char buf[256];
@@ -104,20 +104,20 @@ int main(int argc, char *argv[] ) {
             printf("Client disconnected: fd = %d\n", fd);
             fflush(stdout);
             close(fd);
+            FD_CLR(fd, &read_fds);
           }
           else if (recv_code < 0){ //err
             err(recv_code, "In Server Main");
             close(fd);
+            FD_CLR(fd, &read_fds);
           }
           else{ //data
-            buf[recv_code] = '\0';
-            //do whatever else whatnot
+            buf[recv_code + 1] = '\0';
+            printf("%s", buf); //replace with logic function
           }
+        }
     }
 
-
-
-    
     //int client_socket = server_tcp_handshake(listen_socket); 
     //if (client_socket == -1) err(client_socket, "In server main");
 
@@ -125,5 +125,4 @@ int main(int argc, char *argv[] ) {
     //fflush(stdout);
 
     //server_logic(client_socket);
-  
 }
