@@ -13,3 +13,7 @@ This document must be updated daily every time you finish a work session.
 - Updated proposal + readme: 45 minutes, Spent most of time thinking ahead of how to do upload and download 
 - Worked on Select(): 40 minutes, cut fork server with subserver logic, tried to figure out where to put fd building and setting function
 - tested Patrick's code: 10 minutes, no compile error but select was used after recv
+
+### 2026-1-08 - Resolved errs, Infrastr for dealing with multiple client fds
+- Resolved err: 1 hour, finding why server prints wrong after cli disconnects, bad fd from redeclaring fd
+- Multiple Client fds hadnling: 1.5 hours, replaced tcp handshake with select infrastructure including handling new connections and iterating through fd list for readable sockets
