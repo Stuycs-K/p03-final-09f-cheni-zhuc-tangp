@@ -8,6 +8,7 @@ void clientLogic(int server_socket){
   while(1){
     printf("Enter Message: \n");
     fflush(stdout);
+
     char * fgot = fgets(message, sizeof(message), stdin);
     if (fgot == NULL){
       perror("Client Closed");
@@ -25,6 +26,7 @@ void clientLogic(int server_socket){
   //sleep(1);
   }
   close(server_socket);
+
 }
 
 
