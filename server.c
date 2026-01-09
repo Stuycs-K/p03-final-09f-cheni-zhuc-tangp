@@ -61,7 +61,7 @@ void subserver_logic(int client_socket){
         //modify response with rot13
         if (strncmp(message, "NAME ", 5) == 0) {
           strcpy(username, message + 5);
-          sprintf(response, "Your name is now %s", username);
+          snprintf(response, sizeof(response), "Your name is now %s", username);
         } else if (strncmp(message, "MSG ", 4) == 0) {
           strcpy(response, message + 4);
         } else if (strncmp(message, "WHO", 3) == 0) {
