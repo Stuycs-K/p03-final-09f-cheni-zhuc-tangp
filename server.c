@@ -24,28 +24,28 @@ void server_logic(int client_socket){
       if (token == NULL) {
         perror("Given empty string!");
       }
-      else{ 
+      else{
         if (strcmp(token, "NAME") == 0) { //how to store data?
           printf("%s\n", message);
           fflush(stdout);
           //store user
-        } 
+        }
         else if (strcmp(token, "MSG ") == 0) {
           //print out in server
           printf("%s\n", message);
           fflush(stdout);
           //send to other clients
-        } 
+        }
         else if (strcmp(token, "WHO ") == 0) {
           //list users
           printf("%s\n", message);
           fflush(stdout);
-        } 
+        }
         else if (strcmp(token, "QUIT") == 0) {
           //probably handle in client and kicks themselves
           printf("%s\n", message);
           fflush(stdout);
-        } 
+        }
         else{
           //err
           printf("%s\n", message);
@@ -58,12 +58,12 @@ void server_logic(int client_socket){
 
 int main(int argc, char *argv[] ) {
     int listen_socket = server_setup();
-    
+
     socklen_t sock_size;
     struct sockaddr_storage client_address;
     sock_size = sizeof(client_address);
 
-    fd_set read_fds, master;
+    fd_set read_fds, master, write_fds;
     FD_ZERO(&master);
     FD_SET(listen_socket, &master);
     int max_fd = listen_socket;
@@ -76,12 +76,12 @@ int main(int argc, char *argv[] ) {
         int readables = select(max_fd+1, &read_fds, NULL, NULL, NULL);
         err(readables, "In server main");
 
-        // if socket
+        // add socket
         if (FD_ISSET(listen_socket, &read_fds)) {
             //accept the connection
             int client_fd = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
             err(client_fd, "In server Main");
-            
+
             printf("Connected, waiting for data.\n");
             fflush(stdout);
 
@@ -94,13 +94,14 @@ int main(int argc, char *argv[] ) {
             if (--readables == 0) continue;
         }
 
+        //iter read_fds
         for (int fd = 0; fd <= max_fd; fd++){
           if (fd == listen_socket) continue;
           if (!FD_ISSET(fd, &read_fds)) continue;
 
-          char buf[256];
-          int recv_code = recv(fd, buf, sizeof(buf) -1, 0);
-          
+          char read_buf[256];
+          int recv_code = recv(fd, read_buf, sizeof(read_buf) -1, 0);
+
           if (recv_code == 0){ //Client's Socket closed
             printf("Client disconnected: fd = %d\n", fd);
             fflush(stdout);
@@ -113,16 +114,51 @@ int main(int argc, char *argv[] ) {
             FD_CLR(fd, &master);
           }
           else{ //data
-            buf[recv_code] = '\0';
-            printf("%s\n", buf); //replace with logic function
+            read_buf[recv_code] = '\0';
+            printf("%s\n", read_buf); //replace with logic function
             fflush(stdout);
           }
 
           if (--readables == 0) break;
         }
+
+
+        write_fds = master;
+
+        int writables = select(max_fd+1, &write_fds, NULL, NULL, NULL);
+        err(writables, "In server main");
+
+        //iter read_fds
+        for (int fd = 0; fd <= max_fd; fd++){
+          if (fd == listen_socket) continue;
+          if (!FD_ISSET(fd, &write_fds)) continue;
+
+          char write_buf[256];
+          snprintf(write_buf, "");
+          int send_code = send(fd, write_buf, sizeof(write_buf) -1, 0);
+
+          if (send_code == 0){ //Client's Socket closed
+            printf("Client disconnected: fd = %d\n", fd);
+            fflush(stdout);
+            close(fd);
+            FD_CLR(fd, &master);
+          }
+          else if (send_code < 0){ //err
+            err(send_code, "In Server Main");
+            close(fd);
+            FD_CLR(fd, &master);
+          }
+          else{ //data
+            write_buf[send_code] = '\0';
+            printf("%s\n", write_buf); //replace with logic function
+            fflush(stdout);
+          }
+
+          if (--writables == 0) break;
+        }
     }
 
-    //int client_socket = server_tcp_handshake(listen_socket); 
+    //int client_socket = server_tcp_handshake(listen_socket);
     //if (client_socket == -1) err(client_socket, "In server main");
 
     //printf("successful server handshake\n");
