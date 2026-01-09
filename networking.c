@@ -9,6 +9,7 @@ int server_setup() {
   //setup structs for getaddrinfo
   struct addrinfo * hints, * results;//results is allocated in getaddrinfo
   hints = calloc(1,sizeof(struct addrinfo));
+
   hints->ai_family = AF_INET;
   hints->ai_socktype = SOCK_STREAM; //TCP socket
   hints->ai_flags = AI_PASSIVE; //only needed on server
@@ -33,6 +34,8 @@ int server_setup() {
   //set socket to listen state
   err(listen(clientd, 10), "In Server setup - listen");
 
+  
+  
   //free the structs used by getaddrinfo
   free(hints);
   freeaddrinfo(results);
@@ -44,20 +47,33 @@ int server_setup() {
  *return the socket descriptor for the new socket connected to the client
  *blocks until connection is made.
  */
-int server_tcp_handshake(int listen_socket){
-    int client_socket;
+ 
+ int server_tcp_handshake(int listen_socket){
+  int client_socket = -1;
+  
+  //select
+  socklen_t sock_size;
+  struct sockaddr_storage client_address;
+  sock_size = sizeof(client_address);
+  fd_set read_fds;
+  
+  FD_ZERO(&read_fds);
+  FD_SET(listen_socket,&read_fds);
 
-    //accept() the client connection
-    socklen_t sock_size; //addrinfo
-    struct sockaddr_storage client_address;
-    sock_size = sizeof(client_address);
-    client_socket = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size); //stalls here
-    if (client_socket == -1) err(client_socket, "In Server tcp handshake");
-    //printf("ckpt in server handshake");
-    //fflush(stdout);
-
-    return client_socket;
+  err(select(listen_socket+1, &read_fds, NULL, NULL, NULL), "in server_tcp_handhsake");
+  
+  
+  if (FD_ISSET(listen_socket, &read_fds)) {
+    //accept the connection
+      client_socket = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
+      if (client_socket == -1) err(client_socket, "In Server tcp handshake"); 
+      printf("Connected, waiting for data.\n");
+  }
+  
+  return client_socket;
 }
+
+
 
 
 /*Connect to the server
@@ -72,7 +88,6 @@ int client_tcp_handshake(char * server_address) {
   hints->ai_socktype = SOCK_STREAM; //TCP socket
   hints->ai_flags = 0;
   getaddrinfo(server_address, PORT, hints, &results);  //Server sets node to NULL
-  //getaddrinfo("127.0.0.1", PORT, hints, &results);
 
   int serverd;//store the socket descriptor here
   //create the socket
