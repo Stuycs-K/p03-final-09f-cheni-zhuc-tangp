@@ -47,36 +47,33 @@ int server_setup() {
  *return the socket descriptor for the new socket connected to the client
  *blocks until connection is made.
  */
-int server_tcp_handshake(int listen_socket){
-  int client_socket;
-
+ 
+ int server_tcp_handshake(int listen_socket){
+  int client_socket = -1;
+  
   //select
   socklen_t sock_size;
   struct sockaddr_storage client_address;
   sock_size = sizeof(client_address);
   fd_set read_fds;
-  char buff[1025]="";
-
+  
   FD_ZERO(&read_fds);
-  FD_SET(STDIN_FILENO, &read_fds);
   FD_SET(listen_socket,&read_fds);
-  int i = select(listen_socket+1, &read_fds, NULL, NULL, NULL);
-  //if standard in, use fgets
-  if (FD_ISSET(STDIN_FILENO, &read_fds)) {
-      fgets(buff, sizeof(buff), stdin);
-      buff[strlen(buff)-1]=0;
-      printf("Recieved from terminal: '%s'\n",buff);
-  }
-  // if socket
+
+  err(select(listen_socket+1, &read_fds, NULL, NULL, NULL), "in server_tcp_handhsake");
+  
+  
   if (FD_ISSET(listen_socket, &read_fds)) {
-      //accept the connection
-      int client_socket = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
+    //accept the connection
+      client_socket = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
       if (client_socket == -1) err(client_socket, "In Server tcp handshake"); 
       printf("Connected, waiting for data.\n");
   }
-
+  
   return client_socket;
 }
+
+
 
 
 /*Connect to the server
