@@ -12,12 +12,6 @@ void clientLogic(int server_socket){
     refresh();
     fflush(stdout);
     getstr(message);
-    // char * fgot = fgets(message, sizeof(message), stdin);
-    //
-    // if (fgot == NULL){
-    //   perror("Client Closed");
-    //   exit(1);
-    // }
     message[strcspn(message, "\n")] = '\0';
     if (strcmp(message, "exit") == 0){
       endwin();
