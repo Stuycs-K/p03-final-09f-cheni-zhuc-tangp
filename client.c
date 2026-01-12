@@ -4,29 +4,37 @@ void clientLogic(int server_socket){
   //passing in client which is same as server socket
   char message[256];
   char response[256];
+  fd_set read_fds;
+
+  printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
 
   while(1){
-    printf("Enter Message: \n");
-    fflush(stdout);
+    FD_ZERO(&read_fds);
+    FD_SET(STDIN_FILENO, &read_fds);
+    FD_SET(server_socket, &read_fds);
 
-    char * fgot = fgets(message, sizeof(message), stdin);
-    if (fgot == NULL){
-      perror("Client Closed");
-      exit(1);
+    if(select(server_socket + 1, &read_fds, NULL, NULL, NULL) == -1) {
+      perror("select error");
+      break;
     }
-    message[strcspn(message, "\n")] = '\0';
-    int send_code = send(server_socket, message, sizeof(message), 0);
-    if (send_code == -1) err(send_code, "In ClientLogic");
 
-  //int bytes_read = read(server_socket, response, sizeof(response));
-  //if (bytes_read == -1) err(bytes_read, "in clientLogic: ");
+    if(FD_ISSET(server_socket, &read_fds)) {
+      int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
+      if(recv_code <= 0) {
+        printf("Server closed.\n");
+        break;
+      }
+      response[recv_code] = '\0';
+      printf("recieved: %s\n", response);
+    }
 
-  //printf("[Client received]: %s\n", response);
-  //fflush(stdout);
-  //sleep(1);
+    if(FD_ISSET(STDIN_FILENO, &read_fds)) {
+      if(fgets(message, sizeof(message), stdin) == NULL) break;
+
+      message[strcspn(message, "\n")] = '\0';
+      send(server_socket, message, sizeof(message), 0);
+    }
   }
-  close(server_socket);
-
 }
 
 
