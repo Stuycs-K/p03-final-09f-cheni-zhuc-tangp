@@ -3,21 +3,28 @@
 #define NUMBER_OF_CLIENTS 100
 
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
-  char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
+  struct client clients[NUMBER_OF_CLIENTS];
   char response[BUFFER_SIZE];
 
-  if (strncmp(message, "NAME ", 5) == 0) {
-    strncpy(names[fd % NUMBER_OF_CLIENTS], message + 5, 255);
-    snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
-  } else if (strncmp(message, "MSG ", 4) == 0) {
-    snprintf(response, sizeof(response), "%s", message + 4);
-  } else if (strcmp(message, "WHO") == 0) {
-    strncpy(response, names[0], sizeof(response));
-  } else if (strcmp(message, "QUIT") == 0) {
-    strncpy(response, "Quitting", sizeof(response));
-    send(fd, response, sizeof(response), 0);
-    return; // main loop handles close
-  } else snprintf(response, sizeof(response), "Unknown command: %s", message);
+  if (message[0] == '/'){
+    if (strncmp(message, "NAME ", 5) == 0) {
+      struct client cli;
+      cli.fd = fd
+      strcpy(cli.name, message);
+      clients[fd] = cli; 
+
+      strncpy(names[fd % NUMBER_OF_CLIENTS], message + 5, 255);
+      snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
+    } else if (strncmp(message, "MSG ", 4) == 0) {
+      snprintf(response, sizeof(response), "%s", message + 4);
+    } else if (strcmp(message, "WHO") == 0) {
+      strncpy(response, names[0], sizeof(response));
+    } else if (strcmp(message, "QUIT") == 0) {
+      strncpy(response, "Quitting", sizeof(response));
+      send(fd, response, sizeof(response), 0);
+      return; // main loop handles close
+    } else snprintf(response, sizeof(response), "Unknown command: %s", message);
+  }
 
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++){
