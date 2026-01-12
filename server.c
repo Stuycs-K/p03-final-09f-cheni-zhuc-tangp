@@ -3,7 +3,7 @@
 #define NUMBER_OF_CLIENTS 100
 char names[NUMBER_OF_CLIENTS][256];
 
-void server_logic(int fd, char * message, fd_set *master, int max_fd, int listen_socket) {
+void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
   char response[BUFFER_SIZE];
     
   if (strncmp(message, "NAME ", 5) == 0) {
@@ -23,7 +23,7 @@ void server_logic(int fd, char * message, fd_set *master, int max_fd, int listen
   for (int i = 0; i <= max_fd; i++){
     if (FD_ISSET(i, master)){
       if (i != listen_socket && i != fd){
-        err(send(i, response, sizeof(response), 0) == -1);
+        err(send(i, response, sizeof(response), 0), "In server logic");
       }
     }
   }
@@ -65,7 +65,7 @@ int main(int argc, char *argv[] ) {
           } else {
             buffer[recv_code] = '\0';
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
-            server_logic(fd, buffer);
+            server_logic(fd, buffer, &master, max_fd, listen_socket);
           }
         }
       }
