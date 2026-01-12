@@ -6,20 +6,21 @@ char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
   char response[BUFFER_SIZE];
 
-  if (strncmp(message, "NAME ", 5) == 0) {
-    strncpy(names[fd % NUMBER_OF_CLIENTS], message + 5, 255);
-    snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
-  } else if (strncmp(message, "MSG ", 4) == 0) {
-    snprintf(response, sizeof(response), "%s", message + 4);
-  } else if (strcmp(message, "WHO") == 0) {
-    strncpy(response, "uhhh idk man this hard", sizeof(response)); //?
-  } else if (strcmp(message, "QUIT") == 0) {
-    strncpy(response, "Quitting", sizeof(response));
-    send(fd, response, sizeof(response), 0);
-    return; // main loop handles close
-  } else snprintf(response, sizeof(response), "Unknown command: %s", message);
+  if (strncmp(message, "/", 1) == 0) {
+    if (strncmp(message, "/NAME ", 6) == 0) {
+      strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
+      snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
+    } else if (strcmp(message, "/WHO") == 0) {
+      strncpy(response, "uhhh idk man this hard", sizeof(response)); //?
+    } else if (strcmp(message, "/QUIT") == 0) {
+      strncpy(response, "Quitting", sizeof(response));
+      send(fd, response, sizeof(response), 0);
+      exit(1);
+    } else snprintf(response, sizeof(response), "Unknown command: %s", message);
 
-  //loop through all fd here
+  } else snprintf(response, sizeof(response), "%s", message);
+
+    //loop through all fd here
   for (int i = 0; i <= max_fd; i++){
     if (FD_ISSET(i, master)){
       if (i != listen_socket && i != fd){
@@ -55,6 +56,7 @@ int main(int argc, char *argv[] ) {
             //FD_CLR(fd, &master); //remove listen socket and add client socket
             FD_SET(client_fd, &master); //add fd to master
             if (client_fd > max_fd) max_fd = client_fd;
+            printf("client fd %d connected\n", client_fd);
           }
         }
         else {
