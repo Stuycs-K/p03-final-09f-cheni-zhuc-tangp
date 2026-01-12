@@ -22,8 +22,8 @@ void clientLogic(int server_socket){
     if(FD_ISSET(server_socket, &read_fds)) {
       int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
       err(recv_code, "In cli logic");
-      
-      response[recv_code] = '\0';
+
+      if (recv_code > 0) response[recv_code] = '\0';
       printf("recieved: %s\n", response);
     }
 
