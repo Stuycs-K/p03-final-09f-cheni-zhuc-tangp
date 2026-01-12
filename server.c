@@ -134,7 +134,9 @@ int main(int argc, char *argv[] ) {
           if (!FD_ISSET(fd, &write_fds)) continue;
 
           char write_buf[256];
-          snprintf(write_buf, "");
+          char *s = "sent back to cli";
+
+          snprintf(write_buf, 6, "%s\n", s);
           int send_code = send(fd, write_buf, sizeof(write_buf) -1, 0);
 
           if (send_code == 0){ //Client's Socket closed
