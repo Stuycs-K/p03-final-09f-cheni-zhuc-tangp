@@ -1,50 +1,15 @@
 #include "networking.h"
 
 void clientLogic(int server_socket){
-  //passing in client which is same as server socket
-  // char message[256] = "";
-  // char response[256] = "";
-  // while(1)
-  // {
-  //   initscr();
-  //   cbreak();
-  //   printw("Enter Message: \n");
-  //   refresh();
-  //   fflush(stdout);
-  //   getstr(message);
-  //   message[strcspn(message, "\n")] = '\0';
-  //   if (strcmp(message, "exit") == 0){
-  //     endwin();
-  //     close(server_socket);
-  //     exit(1);
-  //   }
-  //   int send_code = send(server_socket, message, sizeof(message), 0);
-  //   if (send_code == -1) err(send_code, "In ClientLogic");
-  //
-  //   // int recv_code = recv(server_socket, response, sizeof(response), 0);
-  //
-  //   // if (recv_code == 0){
-  //   //   refresh();
-  //   //   endwin();
-  //   //   printf("server closed\n");
-  //   //   fflush(stdout);
-  //   //   exit(1);
-  //   // }
-  //   // if (recv_code == -1) err(recv_code, "In ClientLogic");
-  //   printf("received: %s\n", response);
-  //   refresh();
-  //   fflush(stdout);
-  //   endwin();
-  //   }
-  //   close(server_socket);
-  //   endwin();
   char message[256];
   char response[256];
   char buffer[BUFFER_SIZE];
   fd_set read_fds;
 
-  printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
-
+  initscr();
+  cbreak();
+  printw("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
+  refresh();
   while(1){
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO, &read_fds);
@@ -52,6 +17,7 @@ void clientLogic(int server_socket){
 
     if(select(server_socket + 1, &read_fds, NULL, NULL, NULL) == -1) {
       perror("select error");
+      endwin();
       break;
     }
 
@@ -60,12 +26,13 @@ void clientLogic(int server_socket){
       err(recv_code, "In cli logic");
 
       if (recv_code > 0) response[recv_code] = '\0';
-      printf("recieved: %s\n", response);
+      printw("recieved: %s\n", response);
+      refresh();
     }
 
     if(FD_ISSET(STDIN_FILENO, &read_fds)) {
-      if(fgets(message, sizeof(message), stdin) == NULL) break;
-
+      // if(fgets(message, sizeof(message), stdin) == NULL) break;
+      getstr(message);
       message[strcspn(message, "\n")] = '\0';
       err(send(server_socket, message, sizeof(message), 0), "In client logic");
 
