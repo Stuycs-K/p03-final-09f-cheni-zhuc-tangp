@@ -21,3 +21,7 @@ This document must be updated daily every time you finish a work session.
 ### 2026-1-09 - Tested concurrent reading and started writing back
 - Tested concurrent: 15 min reading in server using tmux
 - Started writing back: 20 min, translating the reading and its iterators over fd to writing 
+
+### 2026-1-11 - Tested concurrent reading and writing and wrote back
+- Tested concurrent: 20 min used telnet server_ip port for local, lab, lab + telnet
+- Started writing back: 15 min, iterated through fd set to send back to clients 
