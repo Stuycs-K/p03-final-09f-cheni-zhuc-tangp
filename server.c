@@ -23,7 +23,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   for (int i = 0; i <= max_fd; i++){
     if (FD_ISSET(i, master)){
       if (i != listen_socket && i != fd){
-        err(send(i, response, sizeof(response), 0), "In server logic");
+        err(send(i, response, strlen(response), 0), "In server logic");
       }
     }
   }
@@ -52,7 +52,7 @@ int main(int argc, char *argv[] ) {
         if (fd == listen_socket) {
           int client_fd = server_tcp_handshake(listen_socket);
           if (client_fd != -1) {
-            FD_CLR(fd, &master); //remove listen socket and add client socket
+            //FD_CLR(fd, &master); //remove listen socket and add client socket
             FD_SET(client_fd, &master); //add fd to master
             if (client_fd > max_fd) max_fd = client_fd;
           }
