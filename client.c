@@ -8,7 +8,7 @@ void clientLogic(int server_socket){
   fd_set read_fds;
 
   printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
-
+  
   while(1){
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO, &read_fds);
