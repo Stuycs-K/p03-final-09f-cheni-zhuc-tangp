@@ -4,7 +4,7 @@
 Create and bind a socket.
 * Place the socket in a listening state.
 * returns the socket descriptor
-*/
+*/ 
 int server_setup() {
   //setup structs for getaddrinfo
   struct addrinfo * hints, * results;//results is allocated in getaddrinfo

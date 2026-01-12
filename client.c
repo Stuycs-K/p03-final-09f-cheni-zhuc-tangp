@@ -5,7 +5,7 @@ void clientLogic(int server_socket){
   char message[256];
   char response[256];
   char buffer[BUFFER_SIZE];
-  fd_set read_fds;
+  fd_set read_fds; 
 
   printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
   
