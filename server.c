@@ -1,171 +1,69 @@
 #include "networking.h"
 
+#define NUMBER_OF_CLIENTS 100
+char names[NUMBER_OF_CLIENTS][256];
 
-void server_logic(int client_socket){
-    char message[256];
-    char response[256];
+void server_logic(int fd, char * message) {
+  char response[BUFFER_SIZE];
+    
+  if (strncmp(message, "NAME ", 5) == 0) {
+    strncpy(names[fd % NUMBER_OF_CLIENTS], message + 5, 255);
+    snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
+  } else if (strncmp(message, "MSG ", 4) == 0) {
+    snprintf(response, sizeof(response), "%s", message + 4);
+  } else if (strcmp(message, "WHO") == 0) {
+    strncpy(response, "uhhh idk man this hard", sizeof(response));
+  } else if (strcmp(message, "QUIT") == 0) {
+    strncpy(response, "Quitting", sizeof(response));
+    send(fd, response, sizeof(response), 0);
+    return; // main loop handles close
+  } else snprintf(response, sizeof(response), "Unknown command: %s", message);
 
-    while (1){
-      int recv_code = recv(client_socket, message, sizeof(message) - 1, 0);
-      if(recv_code > 0){
-        message[recv_code] = '\0';
-        //printf("socket closed\n");
-        //exit(1);
-      }
-      if (recv_code == 0){
-        printf("Client disconnected");
-        fflush(stdout);
-        break;
-      }
-      if (recv_code < 0) err(recv_code, "In subserver logic");
 
-      char *p = message;
-      char * token = strsep(&p, " ");
-      if (token == NULL) {
-        perror("Given empty string!");
-      }
-      else{
-        if (strcmp(token, "NAME") == 0) { //how to store data?
-          printf("%s\n", message);
-          fflush(stdout);
-          //store user
-        }
-        else if (strcmp(token, "MSG ") == 0) {
-          //print out in server
-          printf("%s\n", message);
-          fflush(stdout);
-          //send to other clients
-        }
-        else if (strcmp(token, "WHO ") == 0) {
-          //list users
-          printf("%s\n", message);
-          fflush(stdout);
-        }
-        else if (strcmp(token, "QUIT") == 0) {
-          //probably handle in client and kicks themselves
-          printf("%s\n", message);
-          fflush(stdout);
-        }
-        else{
-          //err
-          printf("%s\n", message);
-          fflush(stdout);
-        }
-      }
-    }
-    close(client_socket); //not sure if this is correctly handled
+  send(fd, response, sizeof(response), 0);
 }
 
 int main(int argc, char *argv[] ) {
-    int listen_socket = server_setup();
+  int listen_socket = server_setup();
+  for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(names[i], "Unnamed");
 
-    socklen_t sock_size;
-    struct sockaddr_storage client_address;
-    sock_size = sizeof(client_address);
+  fd_set master, read_fds;
+  FD_ZERO(&master);
+  FD_SET(listen_socket, &master);
+  int max_fd = listen_socket;
 
-    fd_set read_fds, master, write_fds;
-    FD_ZERO(&master);
-    FD_SET(listen_socket, &master);
-    int max_fd = listen_socket;
+  printf("Server started\n");
 
-    char buff[1025]="";
-
-    while(1){
-        read_fds = master;
-
-        int readables = select(max_fd+1, &read_fds, NULL, NULL, NULL);
-        err(readables, "In server main");
-
-        // add socket
-        if (FD_ISSET(listen_socket, &read_fds)) {
-            //accept the connection
-            int client_fd = accept(listen_socket,(struct sockaddr *)&client_address, &sock_size);
-            err(client_fd, "In server Main");
-
-            printf("Connected, waiting for data.\n");
-            fflush(stdout);
-
-            FD_SET(client_fd, &master);
-            if (client_fd > max_fd) max_fd = client_fd;
-
-            printf("\nRecieved from client_fd %d: %s\n",client_fd, buff);
-            fflush(stdout);
-
-            if (--readables == 0) continue;
-        }
-
-        //iter read_fds
-        for (int fd = 0; fd <= max_fd; fd++){
-          if (fd == listen_socket) continue;
-          if (!FD_ISSET(fd, &read_fds)) continue;
-
-          char read_buf[256];
-          int recv_code = recv(fd, read_buf, sizeof(read_buf) -1, 0);
-
-          if (recv_code == 0){ //Client's Socket closed
-            printf("Client disconnected: fd = %d\n", fd);
-            fflush(stdout);
-            close(fd);
-            FD_CLR(fd, &master);
-          }
-          else if (recv_code < 0){ //err
-            err(recv_code, "In Server Main");
-            close(fd);
-            FD_CLR(fd, &master);
-          }
-          else{ //data
-            read_buf[recv_code] = '\0';
-            printf("%s\n", read_buf); //replace with logic function
-            fflush(stdout);
-          }
-
-          if (--readables == 0) break;
-        }
-
-
-        write_fds = master;
-
-        int writables = select(max_fd+1, &write_fds, NULL, NULL, NULL);
-        err(writables, "In server main");
-
-        //iter read_fds
-        for (int fd = 0; fd <= max_fd; fd++){
-          if (fd == listen_socket) continue;
-          if (!FD_ISSET(fd, &write_fds)) continue;
-
-          char write_buf[256];
-          char *s = "sent back to cli";
-
-          snprintf(write_buf, 6, "%s\n", s);
-          int send_code = send(fd, write_buf, sizeof(write_buf) -1, 0);
-
-          if (send_code == 0){ //Client's Socket closed
-            printf("Client disconnected: fd = %d\n", fd);
-            fflush(stdout);
-            close(fd);
-            FD_CLR(fd, &master);
-          }
-          else if (send_code < 0){ //err
-            err(send_code, "In Server Main");
-            close(fd);
-            FD_CLR(fd, &master);
-          }
-          else{ //data
-            write_buf[send_code] = '\0';
-            printf("%s\n", write_buf); //replace with logic function
-            fflush(stdout);
-          }
-
-          if (--writables == 0) break;
-        }
+  while(1){
+    read_fds = master;
+    if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) == -1) {
+      perror("select error");
+      continue;
     }
 
-    //int client_socket = server_tcp_handshake(listen_socket);
-    //if (client_socket == -1) err(client_socket, "In server main");
-
-    //printf("successful server handshake\n");
-    //fflush(stdout);
-
-    //server_logic(client_socket);
-    return 0;
+    for (int fd = 0; fd <= max_fd; fd++) {
+      if (FD_ISSET(fd, &read_fds)) {
+        if (fd == listen_socket) {
+          int client_fd = server_tcp_handshake(listen_socket);
+          if (client_fd != -1) {
+            FD_SET(client_fd, &master);
+            if (client_fd > max_fd) max_fd = client_fd;
+          }
+        } else {
+          char buffer[BUFFER_SIZE];
+          int recv_code = recv(fd, buffer, sizeof(buffer) - 1, 0);
+          if (recv_code <= 0) {
+            printf("Client disconnected: %s\n", names[fd % NUMBER_OF_CLIENTS]);
+            close(fd);
+            FD_CLR(fd, &master);
+          } else {
+            buffer[recv_code] = '\0';
+            printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
+            server_logic(fd, buffer);
+          }
+        }
+      }
+    }
+  }
+  return 0;
 }
