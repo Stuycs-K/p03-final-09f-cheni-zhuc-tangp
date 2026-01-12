@@ -1,9 +1,9 @@
 #include "networking.h"
 
 #define NUMBER_OF_CLIENTS 100
-char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
 
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
+  char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
   char response[BUFFER_SIZE];
 
   if (strncmp(message, "NAME ", 5) == 0) {
@@ -12,7 +12,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   } else if (strncmp(message, "MSG ", 4) == 0) {
     snprintf(response, sizeof(response), "%s", message + 4);
   } else if (strcmp(message, "WHO") == 0) {
-    strncpy(response, "uhhh idk man this hard", sizeof(response)); //?
+    strncpy(response, names[0], sizeof(response));
   } else if (strcmp(message, "QUIT") == 0) {
     strncpy(response, "Quitting", sizeof(response));
     send(fd, response, sizeof(response), 0);

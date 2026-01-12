@@ -20,4 +20,5 @@ void err(int i, char*message);
 int server_setup();
 int client_tcp_handshake(char*server_address);
 int server_tcp_handshake(int listen_socket);
+typedef struct
 #endif
