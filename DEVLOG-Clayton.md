@@ -17,3 +17,7 @@ This document must be updated daily every time you finish a work session.
 ### 2026-1-08 - Resolved errs, Infrastr for dealing with multiple client fds
 - Resolved err: 1 hour, finding why server prints wrong after cli disconnects, bad fd from redeclaring fd
 - Multiple Client fds hadnling: 1.5 hours, replaced tcp handshake with select infrastructure including handling new connections and iterating through fd list for readable sockets
+
+### 2026-1-09 - Tested concurrent reading and started writing back
+- Tested concurrent: 15 min reading in server using tmux
+- Started writing back: 20 min, translating the reading and its iterators over fd to writing 
