@@ -5,10 +5,10 @@ void clientLogic(int server_socket){
   char message[256];
   char response[256];
   char buffer[BUFFER_SIZE];
-  fd_set read_fds; 
+  fd_set read_fds;
 
   printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
-  
+
   while(1){
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO, &read_fds);
@@ -32,7 +32,7 @@ void clientLogic(int server_socket){
 
       message[strcspn(message, "\n")] = '\0';
       err(send(server_socket, message, sizeof(message), 0), "In client logic");
-      
+
     }
   }
 }
@@ -44,10 +44,10 @@ int main(int argc, char *argv[] ) {
   if(argc>1){
     IP=argv[1];
   }
-  int server_socket = client_tcp_handshake(IP); 
+  int server_socket = client_tcp_handshake(IP);
   if(server_socket == -1) err(server_socket, "In client: ");
-  
-  clientLogic(server_socket); 
+
+  clientLogic(server_socket);
 
 
 }
