@@ -15,4 +15,8 @@ Very simple and rudimentary implementation of ncurses to client (30 min)
 Problem: control signals are read as input. for now, type exit to quit client
 
 ### 2026-01-09 - small fixes
-adjusted ncurses to work with new server
+adjusted ncurses to work with new server (10 min)
+
+### 2026-01-12 - adjustment, ncurses
+updated client behavior to work with ncurses (20 min)
+added a border to the window (20 min)

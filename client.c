@@ -7,8 +7,9 @@ void clientLogic(int server_socket){
   fd_set read_fds;
 
   initscr();
+  wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
   cbreak();
-  printw("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
+  mvprintw(1, 1, "Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
   refresh();
   while(1){
     FD_ZERO(&read_fds);
