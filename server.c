@@ -1,7 +1,7 @@
 #include "networking.h"
 
 #define NUMBER_OF_CLIENTS 100
-char names[NUMBER_OF_CLIENTS][256];
+char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
 
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
   char response[BUFFER_SIZE];
