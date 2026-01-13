@@ -37,13 +37,17 @@ void clientLogic(int server_socket){
       // if(fgets(message, sizeof(message), stdin) == NULL) break;
       getstr(message);
       message[strcspn(message, "\n")] = '\0';
-      err(send(server_socket, message, sizeof(message), 0), "In client logic");
-      if (strncasecmp(message, "quit", 4) == 0){
+      if (message[0] == '\0') continue;
+
+      err(send(server_socket, message, strlen(message), 0), "In client logic");
+
+      if (strcmp(message, "/QUIT") == 0){
         endwin();
-        break;
+        break; //server already knows through socket closing
       }
     }
   }
+  close(server_socket);
 }
 
 

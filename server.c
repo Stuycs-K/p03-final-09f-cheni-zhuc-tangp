@@ -1,37 +1,61 @@
 #include "networking.h"
 
 #define NUMBER_OF_CLIENTS 100
-char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
 
-void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
-  char response[BUFFER_SIZE];
-
-  if (strncmp(message, "NAME ", 5) == 0) {
-    strncpy(names[fd % NUMBER_OF_CLIENTS], message + 5, 255);
-    snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
-  } else if (strncmp(message, "MSG ", 4) == 0) {
-    snprintf(response, sizeof(response), "%s", message + 4);
-  } else if (strcmp(message, "WHO") == 0) {
-    strncpy(response, "uhhh idk man this hard", sizeof(response)); //?
-  } else if (strcmp(message, "QUIT") == 0) {
-    strncpy(response, "Quitting", sizeof(response));
-    send(fd, response, sizeof(response), 0);
-    return; // main loop handles close
-  } else snprintf(response, sizeof(response), "Unknown command: %s", message);
-
-  //loop through all fd here
+void send_to_other_cli(char * message, char * response, fd_set * master, int max_fd, int listen_socket, struct client *clients){
   for (int i = 0; i <= max_fd; i++){
     if (FD_ISSET(i, master)){
-      if (i != listen_socket && i != fd){
-        err(send(i, response, strlen(response), 0), "In server logic");
+      if (i != listen_socket){
+        if (strlen(clients[i].name) > 0){
+          strcat(response, clients[i].name);
+          strcat(response, "\n");
+          err(send(i, response, strlen(response), 0), "In server logic");
+        }
       }
     }
   }
 }
 
+void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket, struct client *clients) {
+  char response[BUFFER_SIZE];
+
+  char *line = message + 1; //skips over '/'
+  char *token = strsep(&line, " ");
+  char *args = line;
+
+  if (message[0] == '/'){
+    if (strcmp(token, "NAME") == 0) {
+      clients[fd].fd = fd;
+      args[strcspn(args, "\n")] = 0;
+      strncpy(clients[fd].name, args, sizeof(clients[fd].name) - 1);
+
+      snprintf(response, sizeof(response), "Name %s logged", clients[fd % NUMBER_OF_CLIENTS].name);
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);    
+      }
+    else if (strcmp(line, "WHO") == 0) {
+      strcpy(response, "Connected Users:\n");
+      err(send(fd, response, strlen(response), 0), "In server logic");
+    } 
+    else if (strcmp(line, "QUIT") == 0) {
+      snprintf(response, strlen(response), "%s is quitting", clients[fd].name);
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);    
+    }
+    else {
+      snprintf(response, sizeof(response), "Unknown command : %s", token);
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);
+    }
+  } 
+  else{
+      snprintf(response, sizeof(response), "%s: %s", clients[fd].name, message);
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);
+  }
+}
+
 int main(int argc, char *argv[] ) {
+  struct client clients[NUMBER_OF_CLIENTS];
+
   int listen_socket = server_setup();
-  for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(names[i], "Unnamed");
+  //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
 
   fd_set master, read_fds;
   FD_ZERO(&master);
@@ -55,20 +79,21 @@ int main(int argc, char *argv[] ) {
             //FD_CLR(fd, &master); //remove listen socket and add client socket
             FD_SET(client_fd, &master); //add fd to master
             if (client_fd > max_fd) max_fd = client_fd;
+            printf("client fd %d connected\n", client_fd);
           }
         }
         else {
           char buffer[BUFFER_SIZE];
           int recv_code = recv(fd, buffer, sizeof(buffer) - 1, 0);
           if (recv_code <= 0) {
-            printf("Client disconnected: %s\n", names[fd % NUMBER_OF_CLIENTS]);
+            printf("Client disconnected: %s\n", clients[fd % NUMBER_OF_CLIENTS].name);
             close(fd);
             FD_CLR(fd, &master);
           }
           else {
             buffer[recv_code] = '\0';
-            printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
-            server_logic(fd, buffer, &master, max_fd, listen_socket);
+            printf("%s sent: %s\n", clients[fd % NUMBER_OF_CLIENTS].name, buffer);
+            server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
           }
         }
       }
