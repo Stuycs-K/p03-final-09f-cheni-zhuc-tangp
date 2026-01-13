@@ -1,13 +1,13 @@
 #include "networking.h"
 
 #define NUMBER_OF_CLIENTS 100
-char names[NUMBER_OF_CLIENTS][256]; //change to Linked List
+char names[NUMBER_OF_CLIENTS][256];
 
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
   char response[BUFFER_SIZE];
 
-  if (strncasecmp(message, "/", 1) == 0) {
-    if (strncmp(message, "/NAME ", 6) == 0) {
+  if (strncmp(message, "/", 1) == 0) {
+    if (strncasecmp(message, "/NAME ", 6) == 0) {
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
       snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
@@ -45,9 +45,12 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   }
 }
 
+
 int main(int argc, char *argv[] ) {
+ // struct client clients[NUMBER_OF_CLIENTS];
+
   int listen_socket = server_setup();
-  for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(names[i], "Unnamed");
+  //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
 
   fd_set master, read_fds;
   FD_ZERO(&master);
@@ -78,6 +81,7 @@ int main(int argc, char *argv[] ) {
           char buffer[BUFFER_SIZE];
           int recv_code = recv(fd, buffer, sizeof(buffer) - 1, 0);
           if (recv_code <= 0) {
+            //printf("Client disconnected: %s\n", clients[fd % NUMBER_OF_CLIENTS].name);
             printf("Client disconnected: %s\n", names[fd % NUMBER_OF_CLIENTS]);
             close(fd);
             FD_CLR(fd, &master);
@@ -85,6 +89,7 @@ int main(int argc, char *argv[] ) {
           else {
             buffer[recv_code] = '\0';
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
+            //server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
             server_logic(fd, buffer, &master, max_fd, listen_socket);
           }
         }

@@ -7,7 +7,7 @@ void clientLogic(int server_socket){
   char buffer[BUFFER_SIZE];
   fd_set read_fds;
 
-  printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
+  printf("Connected to server. Commands(Start with /): NAME <name>, WHO, QUIT\n");
 
   while(1){
     FD_ZERO(&read_fds);
@@ -31,10 +31,16 @@ void clientLogic(int server_socket){
       if(fgets(message, sizeof(message), stdin) == NULL) break;
 
       message[strcspn(message, "\n")] = '\0';
-      err(send(server_socket, message, sizeof(message), 0), "In client logic");
+      if (message[0] == '\0') continue;
 
+      err(send(server_socket, message, strlen(message), 0), "In client logic");
+
+      if (strcmp(message, "/QUIT") == 0){
+        break; //server already knows through socket closing
+      }
     }
   }
+  close(server_socket);
 }
 
 
