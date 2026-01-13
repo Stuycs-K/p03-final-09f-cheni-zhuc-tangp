@@ -10,21 +10,36 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     if (strncmp(message, "/NAME ", 6) == 0) {
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
       snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
+      send(fd, response, strlen(response), 0);
+      return;
     } else if (strcmp(message, "/WHO") == 0) {
-      strncpy(response, "uhhh idk man this hard", sizeof(response)); //?
+      strcpy(response, "Active users: ");
+      for(int i = 0; i <= max_fd; i++) {
+        if(FD_ISSET(i, master) && i != listen_socket) {
+          strncat(response, names[i % NUMBER_OF_CLIENTS], sizeof(response) - strlen(response) - 1);
+          strncat(response, " ", sizeof(response) - strlen(response) - 1);
+        }
+      }
+      send(fd, response, strlen(response), 0);
+      return;
     } else if (strcmp(message, "/QUIT") == 0) {
-      strncpy(response, "Quitting", sizeof(response));
-      send(fd, response, sizeof(response), 0);
-      exit(1);
-    } else snprintf(response, sizeof(response), "Unknown command: %s", message);
+      strcpy(response, "Quitting...");
+      send(fd, response, strlen(response), 0);
+      close(fd);
+      FD_CLR(fd, master);
+      return;
+    } else {
+      snprintf(response, sizeof(response), "Unknown command: %s", message);
+      send(fd, response, strlen(response), 0);
+      return;
+    }
+  } else snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
 
-  } else snprintf(response, sizeof(response), "%s", message);
-
-    //loop through all fd here
-  for (int i = 0; i <= max_fd; i++){
-    if (FD_ISSET(i, master)){
-      if (i != listen_socket && i != fd){
-        err(send(i, response, strlen(response), 0), "In server logic");
+  //loop through all fd here
+  for (int i = 0; i <= max_fd; i++) {
+    if (FD_ISSET(i, master)) {
+      if (i != listen_socket && i != fd) {
+        send(i, response, strlen(response), 0);
       }
     }
   }
