@@ -21,3 +21,7 @@ adjusted ncurses to work with new server (10 min)
 updated client behavior to work with ncurses (20 min)
 added a border to the window (20 min)
 text no longer clips through the left side of the window (5 min)
+
+### 2026-01-13 - more formatting
+client textbox is now at the bottom of the screen instead of where the next message is (10 min)
+border for client textbox (5 min)
