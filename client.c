@@ -13,9 +13,12 @@ void clientLogic(int server_socket){
   refresh();
   while(1){
     wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
-    for (int i = 1; i < getmaxx(stdscr)-2; i++){
+    for (int i = 1; i < getmaxx(stdscr)-1; i++){
+      mvprintw(getmaxy(stdscr)-3, i, "-");
       mvprintw(getmaxy(stdscr)-2, i, " ");
     }
+    mvprintw(getmaxy(stdscr)-3, 0, "+");
+    mvprintw(getmaxy(stdscr)-3, getmaxx(stdscr)-1, "+");
     move(getmaxy(stdscr)-2, 1);
     refresh();
     FD_ZERO(&read_fds);
