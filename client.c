@@ -13,7 +13,11 @@ void clientLogic(int server_socket){
   refresh();
   while(1){
     wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
+    for (int i = 1; i < getmaxx(stdscr)-2; i++){
+      mvprintw(getmaxy(stdscr)-2, i, " ");
+    }
     move(getmaxy(stdscr)-2, 1);
+    refresh();
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO, &read_fds);
     FD_SET(server_socket, &read_fds);
@@ -27,7 +31,7 @@ void clientLogic(int server_socket){
     if(FD_ISSET(server_socket, &read_fds)) {
       int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
       err(recv_code, "In cli logic");
-
+      refresh();
       if (recv_code > 0) response[recv_code] = '\0';
       mvprintw(row++, 1, "recieved: %s\n", response);
       refresh();
@@ -41,7 +45,7 @@ void clientLogic(int server_socket){
 
       err(send(server_socket, message, strlen(message), 0), "In client logic");
 
-      if (strcmp(message, "/QUIT") == 0){
+      if (strncasecmp(message, "/QUIT", 5) == 0){
         endwin();
         break; //server already knows through socket closing
       }
