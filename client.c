@@ -29,7 +29,7 @@ void clientLogic(int server_socket){
       err(recv_code, "In cli logic");
 
       if (recv_code > 0) response[recv_code] = '\0';
-      printw("recieved: %s\n", response);
+      mvprintw(row++, 1, "recieved: %s\n", response);
       refresh();
     }
 
