@@ -17,3 +17,8 @@ Changed how usernames are handled and added quitting capabilities(~45 minutes)
 ### 2026-01-09 - 2026-01-011  - Rework select and client commands
 Reworked server.c in how client commands are handled with select(~1.5 hours)
 Reworked client.c to read stdin, send, and receive data to the server(~1 hour)
+
+### 2026-01-12 - Added WHO and Fixed Quit
+Rewrote client commands to use / for special cases(~5 minutes)
+Wrote WHO to display active users(~45 minutes)
+Fixed QUIT to correctly quit(~5 minutes)
