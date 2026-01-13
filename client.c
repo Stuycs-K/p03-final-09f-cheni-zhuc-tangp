@@ -5,13 +5,15 @@ void clientLogic(int server_socket){
   char response[256];
   char buffer[BUFFER_SIZE];
   fd_set read_fds;
-
+  int row = 1;
   initscr();
   wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
   cbreak();
-  mvprintw(1, 1, "Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
+  mvprintw(row++, 1, "Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
   refresh();
   while(1){
+    wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
+    move(row++,1);
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO, &read_fds);
     FD_SET(server_socket, &read_fds);
@@ -36,7 +38,10 @@ void clientLogic(int server_socket){
       getstr(message);
       message[strcspn(message, "\n")] = '\0';
       err(send(server_socket, message, sizeof(message), 0), "In client logic");
-
+      if (strncasecmp(message, "quit", 4) == 0){
+        endwin();
+        break;
+      }
     }
   }
 }
