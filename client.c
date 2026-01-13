@@ -4,6 +4,7 @@ void clientLogic(int server_socket){
   //passing in client which is same as server socket
   char message[256];
   char response[256];
+  char buffer[BUFFER_SIZE];
   fd_set read_fds;
 
   printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
@@ -20,11 +21,9 @@ void clientLogic(int server_socket){
 
     if(FD_ISSET(server_socket, &read_fds)) {
       int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
-      if(recv_code <= 0) {
-        printf("Server closed.\n");
-        break;
-      }
-      response[recv_code] = '\0';
+      err(recv_code, "In cli logic");
+
+      if (recv_code > 0) response[recv_code] = '\0';
       printf("recieved: %s\n", response);
     }
 
@@ -32,7 +31,8 @@ void clientLogic(int server_socket){
       if(fgets(message, sizeof(message), stdin) == NULL) break;
 
       message[strcspn(message, "\n")] = '\0';
-      send(server_socket, message, sizeof(message), 0);
+      err(send(server_socket, message, sizeof(message), 0), "In client logic");
+
     }
   }
 }
@@ -44,10 +44,10 @@ int main(int argc, char *argv[] ) {
   if(argc>1){
     IP=argv[1];
   }
-  int server_socket = client_tcp_handshake(IP); 
+  int server_socket = client_tcp_handshake(IP);
   if(server_socket == -1) err(server_socket, "In client: ");
-  
-  clientLogic(server_socket); 
+
+  clientLogic(server_socket);
 
 
 }
