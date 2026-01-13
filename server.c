@@ -32,7 +32,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       }
     } 
     else if (strcmp(line, "QUIT") == 0) {
-      snprintf(response, sizeof(response), "%s is quitting", clients[fd].name);
+      snprintf(response, strlen(response), "%s is quitting", clients[fd].name);
       //send(fd, response, sizeof(response), 0);
       // main loop handles close
     }
@@ -58,7 +58,7 @@ int main(int argc, char *argv[] ) {
   struct client clients[NUMBER_OF_CLIENTS];
 
   int listen_socket = server_setup();
-  for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
+  //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
 
   fd_set master, read_fds;
   FD_ZERO(&master);
