@@ -26,4 +26,6 @@ This document must be updated daily every time you finish a work session.
 - Tested concurrent: 20 min used telnet server_ip port for local, lab, lab + telnet
 - Started writing back: 15 min, iterated through fd set to send back to clients 
 
-### 2026-1-12 - Handled commands
+### 2026-1-12 - Handled commands, worked on file_transfer
+- Handled commands: 40 min less buggy way to handle MSG, NAME, QUIT. Replaced by Patrick's version
+- File transfer: 40 min, send_all and recieve_all loops while sending/recieving until no bytes left. Send file function
