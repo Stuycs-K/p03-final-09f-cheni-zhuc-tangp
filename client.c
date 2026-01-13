@@ -9,11 +9,11 @@ void clientLogic(int server_socket){
   initscr();
   wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
   cbreak();
-  mvprintw(row++, 1, "Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
+  mvprintw(row++, 1, "Connected to server. Type /help for commands.\n");
   refresh();
   while(1){
     wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
-    move(row++,1);
+    move(getmaxy(stdscr)-2, 1);
     FD_ZERO(&read_fds);
     FD_SET(STDIN_FILENO, &read_fds);
     FD_SET(server_socket, &read_fds);
