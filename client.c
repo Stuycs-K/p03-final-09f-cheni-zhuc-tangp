@@ -7,7 +7,7 @@ void clientLogic(int server_socket){
   char buffer[BUFFER_SIZE];
   fd_set read_fds;
 
-  printf("Connected to server. Commands: NAME <name>, MSG <text>, WHO, QUIT\n");
+  printf("Connected to server. Commands(Start with /): NAME <name>, WHO, QUIT\n");
 
   while(1){
     FD_ZERO(&read_fds);
