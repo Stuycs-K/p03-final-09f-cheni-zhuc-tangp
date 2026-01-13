@@ -25,3 +25,5 @@ This document must be updated daily every time you finish a work session.
 ### 2026-1-11 - Tested concurrent reading and writing and wrote back
 - Tested concurrent: 20 min used telnet server_ip port for local, lab, lab + telnet
 - Started writing back: 15 min, iterated through fd set to send back to clients 
+
+### 2026-1-12 - Handled commands
