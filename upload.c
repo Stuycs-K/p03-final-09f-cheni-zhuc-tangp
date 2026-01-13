@@ -1,4 +1,5 @@
 #include <sys/stats.h>
+#include <fcntl.h>
 
 int send_all(int socket, char * buffer, int length){
   //get file size using stat then keep sending until match
@@ -39,9 +40,25 @@ int recv_all(int socket, char * buffer, int length){
 }
 
 int send_file(int socket, char * filepath){
+  struct stat stat_buffer;  
+  err((stat(filepath, &stat_buffer) == -1), "in send_file");
+
+  long file_size = stat_buffer.st_size;
   
+  FILE *file = fopen(filepath, "rb");
+  if (!file) {
+    perror("fopen error");
+    return -1;
+  }
+
+  printf("Sending file: %s (%ld bytes)\n", filepath, file_size);
+
+  if (send_all(socket, , sizeof(file_size)) == -1) {
+    fclose(file);
+    return -1;
+  }
 }
 
 int recieve_file(){
-  
+
 }
