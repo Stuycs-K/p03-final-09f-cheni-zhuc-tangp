@@ -2,6 +2,20 @@
 
 #define NUMBER_OF_CLIENTS 100
 
+void send_to_other_cli(char * message, char * response, fd_set * master, int max_fd, int listen_socket, struct client *clients){
+  for (int i = 0; i <= max_fd; i++){
+    if (FD_ISSET(i, master)){
+      if (i != listen_socket){
+        if (strlen(clients[i].name) > 0){
+          strcat(response, clients[i].name);
+          strcat(response, "\n");
+          err(send(i, response, strlen(response), 0), "In server logic");
+        }
+      }
+    }
+  }
+}
+
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket, struct client *clients) {
   char response[BUFFER_SIZE];
 
@@ -16,41 +30,24 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       strncpy(clients[fd].name, args, sizeof(clients[fd].name) - 1);
 
       snprintf(response, sizeof(response), "Name %s logged", clients[fd % NUMBER_OF_CLIENTS].name);
-    } 
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);    
+      }
     else if (strcmp(line, "WHO") == 0) {
       strcpy(response, "Connected Users:\n");
-
-      for (int i = 0; i <= max_fd; i++){
-        if (FD_ISSET(i, master)){
-          if (i != listen_socket){
-            if (strlen(clients[i].name) > 0){
-              strcat(response, clients[i].name);
-              strcat(response, "\n");
-            }
-          }
-        }
-      }
+      err(send(fd, response, strlen(response), 0), "In server logic");
     } 
     else if (strcmp(line, "QUIT") == 0) {
       snprintf(response, strlen(response), "%s is quitting", clients[fd].name);
-      //send(fd, response, sizeof(response), 0);
-      // main loop handles close
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);    
     }
     else {
       snprintf(response, sizeof(response), "Unknown command : %s", token);
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);
     }
   } 
   else{
       snprintf(response, sizeof(response), "%s: %s", clients[fd].name, message);
-  } 
-  
-  //send back to other cliens 
-  for (int i = 0; i <= max_fd; i++){
-    if (FD_ISSET(i, master)){
-      if (i != listen_socket && i != fd){
-        err(send(i, response, strlen(response), 0), "In server logic");
-      }
-    }
+      send_to_other_cli(message, response, master, max_fd, listen_socket, clients);
   }
 }
 
