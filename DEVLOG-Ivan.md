@@ -25,3 +25,6 @@ text no longer clips through the left side of the window (5 min)
 ### 2026-01-13 - more formatting
 client textbox is now at the bottom of the screen instead of where the next message is (10 min)
 border for client textbox (5 min)
+wrote text for /help (10 min)
+changed the output area for client to a new window (20 min)
+clients now see their own messages after they get sent (10 min)
