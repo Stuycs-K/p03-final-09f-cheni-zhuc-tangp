@@ -9,6 +9,7 @@ void clientLogic(int server_socket){
   initscr();
   wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
   cbreak();
+  //noecho();
   mvprintw(row++, 1, "Connected to server. Type /help for commands.\n");
   refresh();
   while(1){
