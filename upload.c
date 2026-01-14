@@ -3,7 +3,8 @@
 void parse_args( char * line, char ** arg_ary ){
   int count = 0;
   char * token;
-  char * line_tmp = line;
+  char * line_copy = strdup(line);
+  char * line_tmp = line_copy;
   while(token = strsep(&line_tmp, " ")){ //NULL is false
     //strip_quotes(token);
     if (token && *token){
@@ -67,6 +68,52 @@ long send_file(int socket, char * filepath){
   return file_size;
 }
 
+/*
+void receive_file_exact_bytes(int socket, char * filepath, size_t bytes){
+  size_t remaining = bytes;
+  char file_buffer[BUFFER_SIZE];
+  size_t n_wrote;
+
+  FILE *file = fopen(filepath, "wb");
+  if (!file) {
+    perror("fopen error");
+    return;
+  }
+
+  printf("Recving file: %s (%ld bytes)\n", filepath, bytes);
+  fflush(stdout);
+
+  while(remaining > 0) {
+    //while(total < n_read) 
+    if (n_wrote > 0){
+      size_t total = 0;
+      while (total < n_wrote){ //works bc buffer_size items, all of which are 1  
+        size_t bytes_recv = recv(socket, file_buffer + total, n_wrote - total, 0);
+
+        if (bytes_recv < 0){
+          fclose(file);
+          perror("Send file error");
+          return;
+        }
+
+        if (bytes_recv == 0){
+          fclose(file);
+          return;
+        }
+
+        n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file)
+        remaining -= bytes_recv; 
+      }
+    }
+
+    if (n_wrote < sizeof(file_buffer)){ //end of file
+      break;
+    }
+
+  }
+  fclose(file);
+}*/
+
 int receive_file(int socket, char * filepath, size_t file_size){
   //get stat size from server
   size_t remaining = file_size;
@@ -99,7 +146,7 @@ int receive_file(int socket, char * filepath, size_t file_size){
           return -1;
         }
 
-        n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file)
+        n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file);3
         remaining -= bytes_recv; 
       }
     }
@@ -112,3 +159,4 @@ int receive_file(int socket, char * filepath, size_t file_size){
   fclose(file);
   return 0;
 }
+

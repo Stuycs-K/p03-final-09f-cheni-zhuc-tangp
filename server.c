@@ -26,18 +26,22 @@ static void sighandler(int signo) {
 
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
   char response[BUFFER_SIZE];
+  char * cmds[20] = {0};
+  parse_args(message, cmds);
 
   if(strncmp(message, "/", 1) == 0){
-    if (strncasecmp(message, "/UPLOAD ", 8) == 0){
+    if ((strcmp(cmds[0], "/UPLOAD") == 0) || (strcmp(cmds[0], "/upload") == 0)){
+      //no need to check bc I write client message properly
+
       //maybe make sure file exists first? And easier to type path
       //handle file upload      
-      char *filepath = message + 8;
-      long file_size = send_file(fd, filepath);
+      char *filepath = cmds[1]; 
+      long file_size = receive_file(fd, filepath, cmds[2]);
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
       } 
       else {
-        snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        snprintf(response, sizeof(response), "Chunk uploaded successfully: %s (%ld bytes)", filepath, file_size);
       }
     }
     if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){

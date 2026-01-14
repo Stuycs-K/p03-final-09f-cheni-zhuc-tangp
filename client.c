@@ -44,23 +44,25 @@ void clientLogic(int server_socket){
     }
 
     if(FD_ISSET(STDIN_FILENO, &read_fds)) {
+      getstr(message);
+      message[strcspn(message, "\n")] = '\0';
+
       char * cmds[20] = {0};
       parse_args(message, cmds);
 
-      getstr(message);
-      message[strcspn(message, "\n")] = '\0';
 
       if (message[0] == '\0') continue;
       if (strncasecmp(message, "/help", 5) == 0){ // client side only, doesn't send to server
         mvwprintw(textbox, row, 1, "/name [user] - change the name you are displayed as\n /who - display every user connected to the server\n /quit - exit from the server\n");
         row+=3;
         wrefresh(textbox);
-      } else err(send(server_socket, message, strlen(message), 0), "In client logic");
+      } 
+      else err(send(server_socket, message, strlen(message), 0), "In client logic");
       if (strncasecmp(message, "/QUIT", 5) == 0){
         endwin();
         break; //server already knows through socket closing
       }
-      if ((strcmp(cmds[0], "/UPLOAD") == 0) or (strcmp(cmds[0], "/upload") == 0)){
+      if ((strcmp(cmds[0], "/UPLOAD") == 0) || (strcmp(cmds[0], "/upload") == 0)){
         int argc = get_arr_len(cmds);
         if (argc != 3){ //wrong syntax
           mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");
@@ -84,7 +86,7 @@ void clientLogic(int server_socket){
         }
       }
 
-      if ((strcmp(cmds[0], "/DOWNLOAD") == 0) or (strcmp(cmds[0], "/download") == 0)){ //not implemented yet
+      if ((strcmp(cmds[0], "/DOWNLOAD") == 0) || (strcmp(cmds[0], "/download") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
         if (argc != 3){ //wrong syntax
           mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");

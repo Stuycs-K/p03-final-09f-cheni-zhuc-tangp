@@ -26,4 +26,5 @@ struct client{
     char name[256];
     //other attributes
 };
+
 #endif
