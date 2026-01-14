@@ -1,28 +1,6 @@
 #include "networking.h"
 #include "upload.h"
 
-void parse_args( char * line, char ** arg_ary ){
-  int count = 0;
-  char * token;
-  char * line_tmp = line;
-  while(token = strsep(&line_tmp, " ")){ //NULL is false
-    //strip_quotes(token);
-    if (token && *token){
-      //if (strcmp(token, "" z))
-      arg_ary[count++] = token;
-    }
-  }
-  arg_ary[count] = NULL;
-}
-
-int get_arr_len(char ** arr){
-  int count = 0;
-  while(arr[count] != NULL){
-    count++;
-  }
-  return count;
-}
-
 void clientLogic(int server_socket){
   char message[256];
   char response[256];
@@ -91,7 +69,10 @@ void clientLogic(int server_socket){
           continue;
         }
 
-        //maybe make sure file exists first? And easier to type path
+        //notify server of upload command
+        snprintf(message, sizeof(message), "/upload %s %d\n", cmds[1], cmds[2]); 
+        err(send(server_socket, message, strlen(message), 0), "In client logic");
+
         //handle file upload      
         char *filepath = cmds[1];
         long file_size = send_file(server_socket, filepath);
@@ -102,6 +83,7 @@ void clientLogic(int server_socket){
           snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
         }
       }
+
       if ((strcmp(cmds[0], "/DOWNLOAD") == 0) or (strcmp(cmds[0], "/download") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
         if (argc != 3){ //wrong syntax

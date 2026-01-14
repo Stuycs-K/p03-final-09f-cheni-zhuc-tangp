@@ -1,5 +1,27 @@
 #include "networking.h"
 
+void parse_args( char * line, char ** arg_ary ){
+  int count = 0;
+  char * token;
+  char * line_tmp = line;
+  while(token = strsep(&line_tmp, " ")){ //NULL is false
+    //strip_quotes(token);
+    if (token && *token){
+      //if (strcmp(token, "" z))
+      arg_ary[count++] = token;
+    }
+  }
+  arg_ary[count] = NULL;
+}
+
+int get_arr_len(char ** arr){
+  int count = 0;
+  while(arr[count] != NULL){
+    count++;
+  }
+  return count;
+}
+
 long send_file(int socket, char * filepath){
   struct stat stat_buffer; 
   char file_buffer[BUFFER_SIZE]; 
