@@ -22,3 +22,7 @@ Reworked client.c to read stdin, send, and receive data to the server(~1 hour)
 Rewrote client commands to use / for special cases(~5 minutes)
 Wrote WHO to display active users(~45 minutes)
 Fixed QUIT to correctly quit(~5 minutes)
+
+### 2026-01-13 - Added Sighandler and Fixed bugs
+Fixed issue with newline for client names(~10 minutes)
+Wrote Sighandler to handle graceful shutdowns(~30 minutes)
