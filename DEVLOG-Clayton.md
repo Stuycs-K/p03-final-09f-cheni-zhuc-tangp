@@ -29,3 +29,7 @@ This document must be updated daily every time you finish a work session.
 ### 2026-1-12 - Handled commands, worked on file_transfer
 - Handled commands: 40 min less buggy way to handle MSG, NAME, QUIT. Replaced by Patrick's version
 - File transfer: 40 min, send_all and recieve_all loops while sending/recieving until no bytes left. Send file function
+
+### 2026-1-13 - Researched ncurses, tried to fix terminal buffer problem
+- Research ncurses: 30 min read over docu from link on repo
+- terminal buffer: 30 min created new window but didn't work
