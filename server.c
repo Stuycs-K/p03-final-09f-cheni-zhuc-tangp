@@ -35,23 +35,23 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     }
     if (strncasecmp(message, "/UPLOAD ", 8) == 0){
       //maybe make sure file exists first? And easier to type path
-      //handle file upload      
+      //handle file upload
       char *filepath = message + 8;
       long file_size = send_file(fd, filepath);
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
-      } 
+      }
       else {
         snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
       }
     }
     if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){
       char *filepath = message + 10;
-      //get file size 
+      //get file size
       int recv_code = receive_file(fd, filepath, 0);
       if (recv_code == -1){
         snprintf(response, sizeof(response), "Error downloading file: %s", filepath);
-      } 
+      }
       else {
         snprintf(response, sizeof(response), "File downloaded successfully: %s (%d bytes)", filepath, recv_code);
       }
@@ -65,7 +65,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       strcpy(response, "Active users: ");
       for(int i = 0; i <= max_fd; i++) {
         if(FD_ISSET(i, master) && i != listen_socket) {
-          strncat(response, "\n", 2);
+          strncat(response, " \n ", 4);
           strncat(response, names[i % NUMBER_OF_CLIENTS], sizeof(response) - strlen(response) - 1);
           strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
@@ -106,7 +106,7 @@ int main(int argc, char *argv[] ) {
 
   listen_socket = server_setup();
    //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
- 
+
   fd_set read_fds;
   FD_ZERO(&master);
   FD_SET(listen_socket, &master);
@@ -144,7 +144,7 @@ int main(int argc, char *argv[] ) {
           else {
             buffer[recv_code] = '\0';
             buffer[strcspn(buffer, "\r\n")] = '\0';
-            
+
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
             //server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
             server_logic(fd, buffer, &master, max_fd, listen_socket);
