@@ -9,13 +9,14 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   if (strncmp(message, "/", 1) == 0) {
     if (strncasecmp(message, "/NAME ", 6) == 0) {
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
-      snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
+      snprintf(response, sizeof(response), "Renamed to: %s", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
       return;
     } else if (strncasecmp(message, "/WHO", 4) == 0) {
       strcpy(response, "Active users: ");
       for(int i = 0; i <= max_fd; i++) {
         if(FD_ISSET(i, master) && i != listen_socket) {
+          strncat(response, "\n", 2);
           strncat(response, names[i % NUMBER_OF_CLIENTS], sizeof(response) - strlen(response) - 1);
           //strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
@@ -33,7 +34,10 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       send(fd, response, strlen(response), 0);
       return;
     }
-  } else snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
+  } else{
+    snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
+    send(fd, response, strlen(response), 0);
+  }
 
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++) {
