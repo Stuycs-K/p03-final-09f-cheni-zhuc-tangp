@@ -146,7 +146,7 @@ int receive_file(int socket, char * filepath, size_t file_size){
           return -1;
         }
 
-        n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file);3
+        n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file);
         remaining -= bytes_recv; 
       }
     }
