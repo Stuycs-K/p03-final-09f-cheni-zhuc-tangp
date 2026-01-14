@@ -17,7 +17,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       for(int i = 0; i <= max_fd; i++) {
         if(FD_ISSET(i, master) && i != listen_socket) {
           strncat(response, names[i % NUMBER_OF_CLIENTS], sizeof(response) - strlen(response) - 1);
-          //strncat(response, " ", sizeof(response) - strlen(response) - 1);
+          strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
       }
       send(fd, response, strlen(response), 0);
