@@ -47,6 +47,7 @@ long send_file(int socket, char * filepath){
 
 int receive_file(int socket, char * filepath, size_t file_size){
   //get stat size from server
+  size_t remaining = file_size;
   char file_buffer[BUFFER_SIZE];
   size_t n_wrote;
 
@@ -58,7 +59,7 @@ int receive_file(int socket, char * filepath, size_t file_size){
 
   printf("Recving file: %s (%ld bytes)\n", filepath, file_size);
 
-  while(n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file)) {
+  while(remaining > 0) {
     //while(total < n_read) 
     if (n_wrote > 0){
       size_t total = 0;
@@ -76,7 +77,8 @@ int receive_file(int socket, char * filepath, size_t file_size){
           return -1;
         }
 
-        total += bytes_recv; 
+        n_wrote = fwrite(file_buffer, 1, BUFFER_SIZE, file)
+        remaining -= bytes_recv; 
       }
     }
 

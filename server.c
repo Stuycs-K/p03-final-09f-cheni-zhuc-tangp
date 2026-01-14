@@ -28,11 +28,6 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   char response[BUFFER_SIZE];
 
   if(strncmp(message, "/", 1) == 0){
-    if (strncasecmp(message, "/HELP", 5) == 0){
-      strcpy(response, "/name [User] - change the name you are displayed as\n");
-      strcpy(response + strlen(response), "/who - display every user connected to the server\n");
-      strcpy(response + strlen(response), "/quit - exit from the server\n");
-    }
     if (strncasecmp(message, "/UPLOAD ", 8) == 0){
       //maybe make sure file exists first? And easier to type path
       //handle file upload      

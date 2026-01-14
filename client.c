@@ -1,5 +1,27 @@
 #include "networking.h"
+#include "upload.h"
 
+void parse_args( char * line, char ** arg_ary ){
+  int count = 0;
+  char * token;
+  char * line_tmp = line;
+  while(token = strsep(&line_tmp, " ")){ //NULL is false
+    //strip_quotes(token);
+    if (token && *token){
+      //if (strcmp(token, "" z))
+      arg_ary[count++] = token;
+    }
+  }
+  arg_ary[count] = NULL;
+}
+
+int get_arr_len(char ** arr){
+  int count = 0;
+  while(arr[count] != NULL){
+    count++;
+  }
+  return count;
+}
 
 void clientLogic(int server_socket){
   char message[256];
@@ -44,18 +66,61 @@ void clientLogic(int server_socket){
     }
 
     if(FD_ISSET(STDIN_FILENO, &read_fds)) {
+      char * cmds[20] = {0};
+      parse_args(message, cmds);
+
       getstr(message);
       message[strcspn(message, "\n")] = '\0';
+
       if (message[0] == '\0') continue;
       if (strncasecmp(message, "/help", 5) == 0){ // client side only, doesn't send to server
         mvwprintw(textbox, row, 1, "/name [user] - change the name you are displayed as\n /who - display every user connected to the server\n /quit - exit from the server\n");
         row+=3;
         wrefresh(textbox);
-      }else err(send(server_socket, message, strlen(message), 0), "In client logic");
-
+      } else err(send(server_socket, message, strlen(message), 0), "In client logic");
       if (strncasecmp(message, "/QUIT", 5) == 0){
         endwin();
         break; //server already knows through socket closing
+      }
+      if ((strcmp(cmds[0], "/UPLOAD") == 0) or (strcmp(cmds[0], "/upload") == 0)){
+        int argc = get_arr_len(cmds);
+        if (argc != 3){ //wrong syntax
+          mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");
+          mvwprintw(textbox, row++, 1, "Usage: /upload [filepath]\n");
+          wrefresh(textbox);
+          continue;
+        }
+
+        //maybe make sure file exists first? And easier to type path
+        //handle file upload      
+        char *filepath = cmds[1];
+        long file_size = send_file(server_socket, filepath);
+        if (file_size == -1){
+          snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
+        } 
+        else {
+          snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        }
+      }
+      if ((strcmp(cmds[0], "/DOWNLOAD") == 0) or (strcmp(cmds[0], "/download") == 0)){ //not implemented yet
+        int argc = get_arr_len(cmds);
+        if (argc != 3){ //wrong syntax
+          mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");
+          mvwprintw(textbox, row++, 1, "Usage: /download [filepath]\n");
+          wrefresh(textbox);
+          continue;
+        }
+
+        //maybe make sure file exists first? And easier to type path
+        //handle file upload      
+        char *filepath = cmds[1];
+        long file_size = send_file(server_socket, filepath);
+        if (file_size == -1){
+          snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
+        } 
+        else {
+          snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        }
       }
     }
   }
