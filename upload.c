@@ -5,7 +5,7 @@ int send_all(int socket, char * buffer, int length){
   //get file size using stat then keep sending until match
 
   int total_sent = 0;
-  int bytes_left = length;  
+  int bytes_left = length;
   int n;
 
   while (total_sent < length){
@@ -22,7 +22,7 @@ int recv_all(int socket, char * buffer, int length){
   //get file size using stat then keep recv until match
 
   int total_recv = 0;
-  int bytes_left = length;  
+  int bytes_left = length;
   int n;
 
   while (total_recv < length){
@@ -40,7 +40,7 @@ int recv_all(int socket, char * buffer, int length){
 }
 
 int send_file(int socket, char * filepath){
-  struct stat stat_buffer;  
+  struct stat stat_buffer;
   err((stat(filepath, &stat_buffer) == -1), "in send_file");
 
   long file_size = stat_buffer.st_size;

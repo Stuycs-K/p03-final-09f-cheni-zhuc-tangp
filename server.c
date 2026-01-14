@@ -7,22 +7,22 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   char response[BUFFER_SIZE];
 
   if (strncmp(message, "/", 1) == 0) {
-    if (strncmp(message, "/NAME ", 6) == 0) {
+    if (strncasecmp(message, "/NAME ", 6) == 0) {
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
       snprintf(response, sizeof(response), "Name: %s", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
       return;
-    } else if (strcmp(message, "/WHO") == 0) {
+    } else if (strncasecmp(message, "/WHO", 4) == 0) {
       strcpy(response, "Active users: ");
       for(int i = 0; i <= max_fd; i++) {
         if(FD_ISSET(i, master) && i != listen_socket) {
           strncat(response, names[i % NUMBER_OF_CLIENTS], sizeof(response) - strlen(response) - 1);
-          strncat(response, " ", sizeof(response) - strlen(response) - 1);
+          //strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
       }
       send(fd, response, strlen(response), 0);
       return;
-    } else if (strcmp(message, "/QUIT") == 0) {
+    } else if (strncasecmp(message, "/QUIT", 5) == 0) {
       strcpy(response, "Quitting...");
       send(fd, response, strlen(response), 0);
       close(fd);
