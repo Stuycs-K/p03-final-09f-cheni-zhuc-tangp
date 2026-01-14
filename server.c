@@ -27,6 +27,34 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   char response[BUFFER_SIZE];
 
   if(strncmp(message, "/", 1) == 0){
+    if (strncasecmp(messagfe, "/HELP", 5) == 0){
+      strcpy(reponse, "/name [User] - change the name you are displayed as\n
+          /who - display every user connected to the server\n
+          /quit - exit from the server\n");
+    }
+    if (strncasecmp(message, "/UPLOAD ", 8) == 0){
+      //maybe make sure file exists first? And easier to type path
+      //handle file upload      
+      char *filepath = message + 8;
+      long file_size = send_file(fd, filepath);
+      if (file_size == -1){
+        snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
+      } 
+      else {
+        snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
+      }
+    }
+    if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){
+      char *filepath = message + 10;
+      //get file size 
+      int recv_code = recv_file(fd, filepath, 0);
+      if (recv_code == -1){
+        snprintf(response, sizeof(response), "Error downloading file: %s", filepath);
+      } 
+      else {
+        snprintf(response, sizeof(response), "File downloaded successfully: %s (%d bytes)", filepath, recv_code);
+      }
+    }
     if(strncasecmp(message, "/NAME ", 6) == 0){
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
       snprintf(response, sizeof(response), "Renamed to: %s", names[fd % NUMBER_OF_CLIENTS]);
