@@ -38,10 +38,9 @@ void clientLogic(int server_socket){
     if(FD_ISSET(server_socket, &read_fds)) {
       int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
       err(recv_code, "In cli logic");
-      refresh();
       if (recv_code > 0) response[recv_code] = '\0';
-      mvwprintw(textbox, row++, 1, "%s\n", response);
-      refresh();
+      mvwprintw(textbox, row++, 1, "%s\n", response); // fix later - increment row by amount of line breaks in response
+      wrefresh(textbox);
     }
 
     if(FD_ISSET(STDIN_FILENO, &read_fds)) {
