@@ -38,6 +38,12 @@ void clientLogic(int server_socket){
     if(FD_ISSET(server_socket, &read_fds)) {
       int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
       err(recv_code, "In cli logic");
+      if (recv_code == 0){
+        mvwprintw(textbox, row++, 1, "Server disconnected.\n");
+        wrefresh(textbox);
+        endwin();
+        exit(1);
+      }
       if (recv_code > 0) response[recv_code] = '\0';
       mvwprintw(textbox, row++, 1, "%s\n", response); // fix later - increment row by amount of line breaks in response
       wrefresh(textbox);
@@ -53,8 +59,11 @@ void clientLogic(int server_socket){
 
       if (message[0] == '\0') continue;
       if (strncasecmp(message, "/help", 5) == 0){ // client side only, doesn't send to server
-        mvwprintw(textbox, row, 1, "/name [user] - change the name you are displayed as\n /who - display every user connected to the server\n /quit - exit from the server\n");
-        row+=3;
+        mvwprintw(textbox, row, 1, "/name [user] - change the name you are displayed as\n");
+        mvwprintw(textbox, row+1, 1, "/who - display every user connected to the server\n");
+        mvwprintw(textbox, row+2, 1, "/upload [filepath] - upload a file to the server\n");
+        mvwprintw(textbox, row+3, 1, "/quit - exit from the server\n");
+        row+=4;
         wrefresh(textbox);
       } 
       else err(send(server_socket, message, strlen(message), 0), "In client logic");
@@ -73,16 +82,16 @@ void clientLogic(int server_socket){
 
         struct stat stat_buffer; 
         if (stat(cmds[1], &stat_buffer) == -1){
-          mvprintw(textbox, row++, 1, "Error: File does not exist: %s\n", cmds[1]);
+          mvwprintw(textbox, row++, 1, "Error: File does not exist: %s\n", cmds[1]);
           wrefresh(textbox);
-          continue;
         }
 
         snprintf(message, sizeof(message), "/upload %s %ld\n", cmds[1], stat_buffer.st_size);
         err(send(server_socket, message, strlen(message), 0), "In client logic"); //let server know file is coming
 
         char ack[256];
-        int recv_code = recv(server_socket, ack, sizeof(ack) - 1, 0); //wait for server ack so pure, blue-eyed, blonde files 
+        int ack_len = recv(server_socket, ack, sizeof(ack) - 1, 0); //wait for server ack so pure, blue-eyed, blonde files 
+        ack[ack_len] = '\0';
 
         send_file(server_socket, cmds[1]); //actual while loop sending
         continue;

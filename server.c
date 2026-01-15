@@ -4,6 +4,24 @@
 #define NUMBER_OF_CLIENTS 100
 char names[NUMBER_OF_CLIENTS][256];
 
+struct file_info server_files[MAX_FILES];
+int file_count = 0;
+
+void add_file_info_to_list(char *filepath, long size) {
+  for (int i = 0; i < file_count; i++) {
+    if (strcmp(server_files[i].filename, filepath) == 0) {
+      server_files[i].size = size;
+      return;
+    }
+  }
+
+  if (file_count < MAX_FILES) {
+    strncpy(server_files[file_count].filename, filepath, 255);
+    server_files[file_count].size = size;
+    file_count++;
+  }
+}
+
 int listen_socket;
 fd_set master;
 int max_fd;
@@ -24,12 +42,29 @@ static void sighandler(int signo) {
   }
 }
 
+
+
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
   char response[BUFFER_SIZE];
   char * cmds[20] = {0};
   parse_args(message, cmds);
+  if (strncmp(message, "/", 1) == 0){
+    if (strncasecmp(message, "/LIST", 5) == 0){
+      if (file_count == 0){
+        strcpy(response, "No files available on sever.\n")
+      }
+      else {
+        for (int i = 0; i < file_count; i++){
+          char file_line[512];
+          snprintf(file_line, sizeof(file_line), "%d. %s (%ld bytes)\n", i+1, server_files[i].filename, server_files[i].size);
+          strncat(response, file_line, sizeof(response) - strlen(response) - 1);
+        }
+      }
 
-  if(strncmp(message, "/", 1) == 0){
+      send(fd, response, strlen(response), 0);
+      return;
+      }
+    }
     //modify upload
     if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
       if (get_arr_len(cmds) != 3){
@@ -49,6 +84,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       } 
       else {
         snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        add_file_info_to_list(filepath, file_size);
       }
 
       send(fd, response, strlen(response), 0);

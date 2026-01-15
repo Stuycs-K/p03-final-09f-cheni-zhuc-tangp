@@ -73,6 +73,7 @@ int receive_file(int socket, char * filepath, long file_size){
   long remaining = file_size;
   char file_buffer[BUFFER_SIZE];
 
+  strcat(filepath, ".received"); //otherwise overwrites existing file on local
   FILE *file = fopen(filepath, "wb"); 
   if (!file) {
     perror("fopen error");
