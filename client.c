@@ -62,30 +62,31 @@ void clientLogic(int server_socket){
         endwin();
         break; //server already knows through socket closing
       }
-      if ((strcmp(cmds[0], "/UPLOAD") == 0) || (strcmp(cmds[0], "/upload") == 0)){
+      if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
         int argc = get_arr_len(cmds);
-        if (argc != 3){ //wrong syntax
+        if (argc != 2){ //wrong syntax
           mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");
           mvwprintw(textbox, row++, 1, "Usage: /upload [filepath]\n");
           wrefresh(textbox);
           continue;
         }
 
-        //notify server of upload command
-        snprintf(message, sizeof(message), "/upload %s %d\n", cmds[1], cmds[2]); 
-        err(send(server_socket, message, strlen(message), 0), "In client logic");
-
-        //handle file upload      
-        char *filepath = cmds[1];
-        long file_size = send_file(server_socket, filepath);
-        if (file_size == -1){
-          snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
-        } 
-        else {
-          snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        struct stat stat_buffer; 
+        if (stat(cmds[1], &stat_buffer) == -1){
+          mvprintw(textbox, row++, 1, "Error: File does not exist: %s\n", cmds[1]);
+          wrefresh(textbox);
+          continue;
         }
-      }
 
+        snprintf(message, sizeof(message), "/upload %s %ld\n", cmds[1], stat_buffer.st_size);
+        err(send(server_socket, message, strlen(message), 0), "In client logic"); //let server know file is coming
+
+        char ack[256];
+        int recv_code = recv(server_socket, ack, sizeof(ack) - 1, 0); //wait for server ack so pure, blue-eyed, blonde files 
+
+        send_file(server_socket, cmds[1]); //actual while loop sending
+        continue;
+      }
       if ((strcmp(cmds[0], "/DOWNLOAD") == 0) || (strcmp(cmds[0], "/download") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
         if (argc != 3){ //wrong syntax
@@ -98,7 +99,7 @@ void clientLogic(int server_socket){
         //maybe make sure file exists first? And easier to type path
         //handle file upload      
         char *filepath = cmds[1];
-        long file_size = send_file(server_socket, filepath);
+        long file_size = send_file(server_socket, filepath); //actual while loop sending 
         if (file_size == -1){
           snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
         } 
