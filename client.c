@@ -66,6 +66,8 @@ void clientLogic(int server_socket){
         row+=4;
         wrefresh(textbox);
       } 
+      else if (strcasecmp(message, "/LIST") == 0){
+        send(server_socket, message, strlen(message), 0);
       else err(send(server_socket, message, strlen(message), 0), "In client logic");
       if (strncasecmp(message, "/QUIT", 5) == 0){
         endwin();

@@ -65,7 +65,6 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       return;
       }
     }
-    //modify upload
     if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
       if (get_arr_len(cmds) != 3){
         send(fd, "ERROR\n", 6, 0);
@@ -92,14 +91,39 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     }
     if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){
       char *filepath = message + 10;
+      
       //get file size 
-      int recv_code = receive_file(fd, filepath, 0);
-      if (recv_code == -1){
-        snprintf(response, sizeof(response), "Error downloading file: %s", filepath);
+      int found = -1; 
+      for (int i = 0; i < file_count; i++){
+        if (strcmp(server_files[i].filename, filepath) == 0){
+          found = i;
+          break;
+        }
+      }
+      if (found == -1){
+        send(fd, "ERROR\n", 6, 0);
+        return;
+      }
+
+      long file_size = server_files[found].size; //atol?
+      char size_msg[64];
+
+      char ack[256];
+      recv(fd, ack, sizeof(ack) - 1, 0); //wait for client ack so pure, blue-eyed, blonde files
+
+      long sent = send_file(fd, server_files[found].filename);
+
+      snprintf(size_msg, sizeof(size_msg), "%ld\n", file_size);
+
+      if (sent == -1){
+        snprintf(response, sizeof(response), "Error sending file: %s", filepath);
       } 
       else {
-        snprintf(response, sizeof(response), "File downloaded successfully: %s (%d bytes)", filepath, recv_code);
+        snprintf(response, sizeof(response), "File transferred successfully: %s (%ld bytes)", filepath, sent);
       }
+
+      send(fd, response, strlen(response), 0);
+      return;
     }
     if(strncasecmp(message, "/NAME ", 6) == 0){
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
