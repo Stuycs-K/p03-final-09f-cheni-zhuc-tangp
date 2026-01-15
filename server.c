@@ -80,7 +80,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
 
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
-      }
+      } 
       else {
         snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)", filepath, file_size);
         add_file_info_to_list(filepath, file_size);
@@ -180,7 +180,7 @@ int main(int argc, char *argv[] ) {
 
   listen_socket = server_setup();
    //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
-
+ 
   fd_set read_fds;
   FD_ZERO(&master);
   FD_SET(listen_socket, &master);
@@ -218,7 +218,7 @@ int main(int argc, char *argv[] ) {
           else {
             buffer[recv_code] = '\0';
             buffer[strcspn(buffer, "\r\n")] = '\0';
-
+            
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
             //server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
             server_logic(fd, buffer, &master, max_fd, listen_socket);
