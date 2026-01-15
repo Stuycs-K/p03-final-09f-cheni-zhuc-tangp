@@ -28,6 +28,3 @@ border for client textbox (5 min)
 wrote text for /help (10 min)
 changed the output area for client to a new window (20 min)
 clients now see their own messages after they get sent (10 min)
-
-### 2026-01-14 - window
-window now scrolls properly (60 min)

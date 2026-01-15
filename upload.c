@@ -15,7 +15,6 @@ void parse_args( char * line, char ** arg_ary ){
   arg_ary[count] = NULL;
 }
 
-<<<<<<< HEAD
 int get_arr_len(char ** arr){
   int count = 0;
   while(arr[count] != NULL){
@@ -30,15 +29,10 @@ long send_file(int socket, char * filepath){
   struct stat stat_buffer; 
   char file_buffer[BUFFER_SIZE]; 
   size_t n_read;
-=======
-int send_file(int socket, char * filepath){
-  struct stat stat_buffer;
-  char * buffer[256];
->>>>>>> 3c9253a (send_all/recv_all is not required)
   err((stat(filepath, &stat_buffer) == -1), "in send_file");
 
   long file_size = stat_buffer.st_size;
-
+  
   FILE *file = fopen(filepath, "rb");
   if (!file) {
     perror("fopen error");
@@ -47,7 +41,6 @@ int send_file(int socket, char * filepath){
 
   printf("Sending file: %s (%ld bytes)\n", filepath, file_size);
 
-<<<<<<< HEAD
   while(n_read = fread(file_buffer, 1, BUFFER_SIZE, file)) {
     //while(total < n_read) 
     if (n_read > 0){
@@ -86,13 +79,6 @@ int receive_file(int socket, char * filepath, long file_size){
   FILE *file = fopen(filepath, "wb"); 
   if (!file) {
     perror("fopen error");
-=======
-  //open file and read into file
-
-
-  if (send_all(socket, , sizeof(file_size)) == -1) { //send what though
-    fclose(file);
->>>>>>> 3c9253a (send_all/recv_all is not required)
     return -1;
   }
 

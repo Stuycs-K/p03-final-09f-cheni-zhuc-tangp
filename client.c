@@ -9,23 +9,19 @@ void clientLogic(int server_socket){
   WINDOW * textbox;
   initscr();
   wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
-  cbreak();
-  // raw(); // prevents signals from being entered
+  // cbreak();
+  raw(); // prevents signals from being entered
+  int row = 2;
   //noecho();
   refresh();
-  textbox = newwin(getmaxy(stdscr)-4, getmaxx(stdscr)-2, 1, 1);
-  scrollok(stdscr, TRUE);
-  scrollok(textbox, TRUE);
-  wprintw(textbox, "Connected to server. Type /help for commands.\n");
+  textbox = newwin(getmaxy(stdscr)-2, getmaxx(stdscr), 0, 0);
+  mvwprintw(textbox, 1, 1, "Connected to server. Type /help for commands.\n");
   while(1){
     wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
-    mvwin(textbox, 1, 1); // doesn't actually move, but sends to the top
+    wborder(textbox, '|', '|', '-', '-', '+', '+', '+', '+');
     for (int i = 1; i < getmaxx(stdscr)-1; i++){
-      mvprintw(getmaxy(stdscr)-3, i, "-");
       mvprintw(getmaxy(stdscr)-2, i, " ");
     }
-    mvprintw(getmaxy(stdscr)-3, 0, "+");
-    mvprintw(getmaxy(stdscr)-3, getmaxx(stdscr)-1, "+");
     refresh();
     wrefresh(textbox);
     move(getmaxy(stdscr)-2, 1);
@@ -49,8 +45,7 @@ void clientLogic(int server_socket){
         exit(1);
       }
       if (recv_code > 0) response[recv_code] = '\0';
-      wprintw(textbox, "%s\n", response);
-      // scroll(textbox);
+      mvwprintw(textbox, row++, 1, "%s\n", response); // fix later - increment row by amount of line breaks in response
       wrefresh(textbox);
     }
 
