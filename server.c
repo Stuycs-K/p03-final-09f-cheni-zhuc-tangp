@@ -148,12 +148,13 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       return;
     }
     if (strncasecmp(message, "/QUIT", 5) == 0) {
-      strcpy(response, "Quitting...");
-      send(fd, response, strlen(response), 0);
+      // strcpy(response, "Quitting...");
+      // send(fd, response, strlen(response), 0);
+      snprintf(response, sizeof(response), "[%s] has disconnected from the server", names[fd % NUMBER_OF_CLIENTS]);
       close(fd);
       FD_CLR(fd, master);
-      return;
-    } 
+      // return;
+    }
   } else{
     snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
     send(fd, response, strlen(response), 0);
@@ -211,6 +212,7 @@ int main(int argc, char *argv[] ) {
           if (recv_code <= 0) {
             //printf("Client disconnected: %s\n", clients[fd % NUMBER_OF_CLIENTS].name);
             printf("Client disconnected: %s\n", names[fd % NUMBER_OF_CLIENTS]);
+            // snprintf(response, sizeof(response), "[%s] has disconnected", names[fd % NUMBER_OF_CLIENTS]);
             close(fd);
             FD_CLR(fd, &master);
           }
