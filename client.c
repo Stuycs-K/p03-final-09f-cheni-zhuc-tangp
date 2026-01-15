@@ -70,15 +70,13 @@ void clientLogic(int server_socket){
       }
       else if (strcasecmp(message, "/LIST") == 0){
         send(server_socket, message, strlen(message), 0);
-      else {
-        err(send(server_socket, message, strlen(message), 0), "In client logic");
-        }
       }
-      if (strncasecmp(message, "/QUIT", 5) == 0){
+      else if (strncasecmp(message, "/QUIT", 5) == 0){
+        send(server_socket, message, strlen(message), 0);
         endwin();
         break; //server already knows through socket closing
       }
-      if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
+      else if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
         int argc = get_arr_len(cmds);
         if (argc != 2){ //wrong syntax
           mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");
@@ -101,9 +99,8 @@ void clientLogic(int server_socket){
         ack[ack_len] = '\0';
 
         send_file(server_socket, cmds[1]); //actual while loop sending
-        continue;
       }
-      if ((strcasecmp(cmds[0], "/DOWNLOAD") == 0)){ //not implemented yet
+      else if ((strcasecmp(cmds[0], "/DOWNLOAD") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
         if (argc != 2){ //wrong syntax
           mvwprintw(textbox, row++, 1, "Usage: /download [filepath]\n");
@@ -139,9 +136,12 @@ void clientLogic(int server_socket){
         }
         continue;
       }
+      else {
+        err(send(server_socket, message, strlen(message), 0), "In client logic");
+      }
   }
-  close(server_socket);
-  }
+}
+close(server_socket);
 }
 
 

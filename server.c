@@ -45,15 +45,15 @@ static void sighandler(int signo) {
 
 
 void server_logic(int fd, char * message, fd_set * master, int max_fd, int listen_socket) {
-  char response[BUFFER_SIZE];
+  char response[BUFFER_SIZE] = {0};
   char * cmds[20] = {0};
   parse_args(message, cmds);
+
   if (strncmp(message, "/", 1) == 0){
     if (strncasecmp(message, "/LIST", 5) == 0){
       if (file_count == 0){
         strcpy(response, "No files available on sever.\n");
-      }
-      else {
+      } else {
         for (int i = 0; i < file_count; i++){
           char file_line[512];
           snprintf(file_line, sizeof(file_line), "%d. %s (%ld bytes)\n", i+1, server_files[i].filename, server_files[i].size);
@@ -63,8 +63,8 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
 
       send(fd, response, strlen(response), 0);
       return;
-      }
     }
+
     if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
       if (get_arr_len(cmds) != 3){
         send(fd, "ERROR\n", 6, 0);
@@ -89,6 +89,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       send(fd, response, strlen(response), 0);
       return;
     }
+
     if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){
       char *filepath = message + 10;
       
@@ -100,29 +101,29 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
           break;
         }
       }
+
       if (found == -1){
         send(fd, "ERROR\n", 6, 0);
         return;
       }
 
       long file_size = server_files[found].size; //atol?
-      char size_msg[64];
+      //char size_msg[64];
 
-      snprintf(size_msg, sizeof(size_msg), "%ld\n", file_size);
-      send(fd, size_msg, strlen(size_msg), 0);
+      snprintf(response, sizeof(response), "READY %s %ld", server_files[found].filename, file_size);
+      send(fd, response, strlen(response), 0);
 
       char ack[256];
       recv(fd, ack, sizeof(ack) - 1, 0); //wait for client ack so pure, blue-eyed, blonde files
 
       long sent = send_file(fd, server_files[found].filename);
 
-      snprintf(size_msg, sizeof(size_msg), "%ld\n", file_size);
+      //snprintf(size_msg, sizeof(size_msg), "%ld\n", file_size);
 
       if (sent == -1){
         snprintf(response, sizeof(response), "Error sending file: %s", filepath);
-      } 
-      else {
-        snprintf(response, sizeof(response), "File transferred successfully: %s (%ld bytes)", filepath, sent);
+      } else {
+        snprintf(response, sizeof(response), "File transferred successfully: %s (%ld bytes)", server_files[found].filename, sent);
       }
 
       send(fd, response, strlen(response), 0);
@@ -133,7 +134,8 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       snprintf(response, sizeof(response), "Renamed to: %s", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
       return;
-    } else if (strncasecmp(message, "/WHO", 4) == 0) {
+    } 
+    if (strncasecmp(message, "/WHO", 4) == 0) {
       strcpy(response, "Active users: ");
       for(int i = 0; i <= max_fd; i++) {
         if(FD_ISSET(i, master) && i != listen_socket) {
@@ -144,16 +146,18 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       }
       send(fd, response, strlen(response), 0);
       return;
-    } else if (strncasecmp(message, "/QUIT", 5) == 0) {
+    } 
+    if (strncasecmp(message, "/QUIT", 5) == 0) {
       strcpy(response, "Quitting...");
       send(fd, response, strlen(response), 0);
       close(fd);
       FD_CLR(fd, master);
       return;
-    } else {
+    } 
+  } else {
       snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
-      send(fd, response, strlen(response), 0);
-      return;
+      //send(fd, response, strlen(response), 0);
+      //return;
     }
 
   //loop through all fd here
@@ -161,10 +165,11 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     if (FD_ISSET(i, master)) {
       if (i != listen_socket && i != fd) {
         send(i, response, strlen(response), 0);
+        }
       }
     }
   }
-}
+
 
 
 
