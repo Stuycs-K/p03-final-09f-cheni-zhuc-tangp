@@ -1,4 +1,5 @@
 #include "networking.h"
+#include <time.h>
 #include "upload.h"
 
 #define NUMBER_OF_CLIENTS 100
@@ -25,6 +26,7 @@ void add_file_info_to_list(char *filepath, long size) {
 int listen_socket;
 fd_set master;
 int max_fd;
+time_t msg_delay[NUMBER_OF_CLIENTS];
 
 static void sighandler(int signo) {
   if(signo == SIGINT || signo == SIGTERM){
@@ -139,7 +141,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       strcpy(response, "Active users: ");
       for(int i = 0; i <= max_fd; i++) {
         if(FD_ISSET(i, master) && i != listen_socket) {
-          strncat(response, "\n", 2);
+          strncat(response, " \n ", 4);
           strncat(response, names[i % NUMBER_OF_CLIENTS], sizeof(response) - strlen(response) - 1);
           strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
@@ -217,6 +219,14 @@ int main(int argc, char *argv[] ) {
           else {
             buffer[recv_code] = '\0';
             buffer[strcspn(buffer, "\r\n")] = '\0';
+
+            time_t now = time(NULL);
+            if(now == msg_delay[fd % NUMBER_OF_CLIENTS]){
+              char *warning = "Stop spamming.";
+              send(fd, warning, strlen(warning), 0);
+              continue;
+            }
+            msg_delay[fd % NUMBER_OF_CLIENTS] = now;
 
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
             //server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
