@@ -51,7 +51,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   if (strncmp(message, "/", 1) == 0){
     if (strncasecmp(message, "/LIST", 5) == 0){
       if (file_count == 0){
-        strcpy(response, "No files available on sever.\n")
+        strcpy(response, "No files available on sever.\n");
       }
       else {
         for (int i = 0; i < file_count; i++){
@@ -108,6 +108,9 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       long file_size = server_files[found].size; //atol?
       char size_msg[64];
 
+      snprintf(size_msg, sizeof(size_msg), "%ld\n", file_size);
+      send(fd, size_msg, strlen(size_msg), 0);
+
       char ack[256];
       recv(fd, ack, sizeof(ack) - 1, 0); //wait for client ack so pure, blue-eyed, blonde files
 
@@ -148,14 +151,10 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       FD_CLR(fd, master);
       return;
     } else {
-      snprintf(response, sizeof(response), "Unknown command: %s", message);
+      snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
       send(fd, response, strlen(response), 0);
       return;
     }
-  } else{
-    snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
-    send(fd, response, strlen(response), 0);
-  }
 
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++) {
@@ -166,6 +165,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     }
   }
 }
+
 
 
 int main(int argc, char *argv[] ) {

@@ -58,17 +58,22 @@ void clientLogic(int server_socket){
 
 
       if (message[0] == '\0') continue;
-      if (strncasecmp(message, "/help", 5) == 0){ // client side only, doesn't send to server
+      if (strncasecmp(message, "/help", 5) == 0) {
         mvwprintw(textbox, row, 1, "/name [user] - change the name you are displayed as\n");
         mvwprintw(textbox, row+1, 1, "/who - display every user connected to the server\n");
         mvwprintw(textbox, row+2, 1, "/upload [filepath] - upload a file to the server\n");
-        mvwprintw(textbox, row+3, 1, "/quit - exit from the server\n");
-        row+=4;
+        mvwprintw(textbox, row+3, 1, "/list - view available files on server\n");
+        mvwprintw(textbox, row+4, 1, "/download [filename] - download a file from server\n");
+        mvwprintw(textbox, row+5, 1, "/quit - exit from the server\n");
+        row += 6;
         wrefresh(textbox);
-      } 
+      }
       else if (strcasecmp(message, "/LIST") == 0){
         send(server_socket, message, strlen(message), 0);
-      else err(send(server_socket, message, strlen(message), 0), "In client logic");
+      else {
+        err(send(server_socket, message, strlen(message), 0), "In client logic");
+        }
+      }
       if (strncasecmp(message, "/QUIT", 5) == 0){
         endwin();
         break; //server already knows through socket closing
@@ -98,29 +103,45 @@ void clientLogic(int server_socket){
         send_file(server_socket, cmds[1]); //actual while loop sending
         continue;
       }
-      if ((strcmp(cmds[0], "/DOWNLOAD") == 0) || (strcmp(cmds[0], "/download") == 0)){ //not implemented yet
+      if ((strcasecmp(cmds[0], "/DOWNLOAD") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
-        if (argc != 3){ //wrong syntax
-          mvwprintw(textbox, row++, 1, "Error: Invalid syntax.\n");
+        if (argc != 2){ //wrong syntax
           mvwprintw(textbox, row++, 1, "Usage: /download [filepath]\n");
           wrefresh(textbox);
           continue;
         }
 
-        //maybe make sure file exists first? And easier to type path
-        //handle file upload      
-        char *filepath = cmds[1];
-        long file_size = send_file(server_socket, filepath); //actual while loop sending 
-        if (file_size == -1){
-          snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
-        } 
-        else {
-          snprintf(response, sizeof(response), "File uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        snprintf(message, sizeof(message), "/download %s\n", cmds[1]);
+        err(send(server_socket, message, strlen(message), 0), "In client logic");
+
+        char response[256];
+        int response_code = recv(server_socket, response, sizeof(response) - 1, 0);
+        response[response_code] = '\0';
+
+        char * cmds2[20] = {0};
+        parse_args(response, cmds2);
+
+        if (strcmp(cmds2[0], "READY") == 0) {
+          char *filename = cmds2[1];
+          long file_size = atol(cmds2[2]); //str t long
+
+          send(server_socket, "ACK\n", 4, 0);  
+
+          long received = receive_file(server_socket, filename, file_size);
+
+          if (received == -1){
+            mvwprintw(textbox, row++, 1, "Error downloading file: %s\n", filename);
+          } 
+          else {
+            mvwprintw(textbox, row++, 1, "File downloaded successfully: %s (%ld bytes)\n", filename, received);
+          }
+          wrefresh(textbox);
         }
+        continue;
       }
-    }
   }
   close(server_socket);
+  }
 }
 
 
