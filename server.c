@@ -156,11 +156,10 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       FD_CLR(fd, master);
       return;
     }
-  } else {
-      snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
-      //send(fd, response, strlen(response), 0);
-      //return;
-    }
+  } else{
+    snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
+    send(fd, response, strlen(response), 0);
+  }
 
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++) {
@@ -223,7 +222,7 @@ int main(int argc, char *argv[] ) {
 
             time_t now = time(NULL);
             if(now == msg_delay[fd % NUMBER_OF_CLIENTS]){
-              char *warning = "Stop spamming.\n";
+              char *warning = "Stop spamming.";
               send(fd, warning, strlen(warning), 0);
               continue;
             }
