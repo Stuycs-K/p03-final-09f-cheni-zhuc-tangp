@@ -30,19 +30,29 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   parse_args(message, cmds);
 
   if(strncmp(message, "/", 1) == 0){
-    if ((strcmp(cmds[0], "/UPLOAD") == 0) || (strcmp(cmds[0], "/upload") == 0)){
-      //no need to check bc I write client message properly
+    //modify upload
+    if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
+      if (get_arr_len(cmds) != 3){
+        send(fd, "ERROR\n", 6, 0);
+        return;
+      }
 
-      //maybe make sure file exists first? And easier to type path
-      //handle file upload      
       char *filepath = cmds[1]; 
-      long file_size = receive_file(fd, filepath, cmds[2]);
+      long file_size = atol(cmds[2]); //str to long
+      
+      send(fd, "ACK\n", 4, 0);  
+
+      long received = receive_file(fd, filepath, file_size);
+
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
       } 
       else {
-        snprintf(response, sizeof(response), "Chunk uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)", filepath, file_size);
       }
+
+      send(fd, response, strlen(response), 0);
+      return;
     }
     if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){
       char *filepath = message + 10;
