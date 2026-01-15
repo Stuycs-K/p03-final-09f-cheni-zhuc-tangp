@@ -71,16 +71,16 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
         return;
       }
 
-      char *filepath = cmds[1];
+      char *filepath = cmds[1]; 
       long file_size = atol(cmds[2]); //str to long
-
-      send(fd, "ACK\n", 4, 0);
+      
+      send(fd, "ACK\n", 4, 0);  
 
       long received = receive_file(fd, filepath, file_size);
 
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
-      }
+      } 
       else {
         snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)", filepath, file_size);
         add_file_info_to_list(filepath, file_size);
@@ -92,9 +92,9 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
 
     if (strncasecmp(message, "/DOWNLOAD ", 10) == 0){
       char *filepath = message + 10;
-
-      //get file size
-      int found = -1;
+      
+      //get file size 
+      int found = -1; 
       for (int i = 0; i < file_count; i++){
         if (strcmp(server_files[i].filename, filepath) == 0){
           found = i;
@@ -134,7 +134,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       snprintf(response, sizeof(response), "Renamed to: %s", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
       return;
-    }
+    } 
     if (strncasecmp(message, "/WHO", 4) == 0) {
       strcpy(response, "Active users: ");
       for(int i = 0; i <= max_fd; i++) {
@@ -146,7 +146,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       }
       send(fd, response, strlen(response), 0);
       return;
-    }
+    } 
     if (strncasecmp(message, "/QUIT", 5) == 0) {
       strcpy(response, "Quitting...");
       send(fd, response, strlen(response), 0);
@@ -154,10 +154,11 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       FD_CLR(fd, master);
       return;
     } 
-  } else{
-    snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
-    send(fd, response, strlen(response), 0);
-  }
+  } else {
+      snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
+      //send(fd, response, strlen(response), 0);
+      //return;
+    }
 
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++) {
@@ -179,7 +180,7 @@ int main(int argc, char *argv[] ) {
 
   listen_socket = server_setup();
    //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
-
+ 
   fd_set read_fds;
   FD_ZERO(&master);
   FD_SET(listen_socket, &master);
@@ -217,7 +218,7 @@ int main(int argc, char *argv[] ) {
           else {
             buffer[recv_code] = '\0';
             buffer[strcspn(buffer, "\r\n")] = '\0';
-
+            
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
             //server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
             server_logic(fd, buffer, &master, max_fd, listen_socket);

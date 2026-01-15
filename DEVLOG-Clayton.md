@@ -33,3 +33,9 @@ This document must be updated daily every time you finish a work session.
 ### 2026-1-13 - Researched ncurses, tried to fix terminal buffer problem
 - Research ncurses: 30 min read over docu from link on repo
 - terminal buffer: 30 min created new window but didn't work
+
+
+### 2026-1-14 - Added File transfer
+- Designing file transfer: 30 min , tried several different ideas including making exclsuive socket connection for every file transfer and using syn acks to sync.
+- Added File transfer helpers: 10 min Parsing args for more than 1 parameter using arg_parse 
+- Building and rebuilding file transfer: 2 hours, could not figure out how to send uninterrupted file sends, reworked send and recieve_file with byte size, send command separate from file
