@@ -1,4 +1,5 @@
 #include "networking.h"
+#include <time.h>
 #include "upload.h"
 
 #define NUMBER_OF_CLIENTS 100
@@ -7,6 +8,7 @@ char names[NUMBER_OF_CLIENTS][256];
 int listen_socket;
 fd_set master;
 int max_fd;
+time_t msg_delay[NUMBER_OF_CLIENTS];
 
 static void sighandler(int signo) {
   if(signo == SIGINT || signo == SIGTERM){
@@ -144,6 +146,14 @@ int main(int argc, char *argv[] ) {
           else {
             buffer[recv_code] = '\0';
             buffer[strcspn(buffer, "\r\n")] = '\0';
+
+            time_t now = time(NULL);
+            if(now == msg_delay[fd % NUMBER_OF_CLIENTS]){
+              char *warning = "Stop spamming.\n";
+              send(fd, warning, strlen(warning), 0);
+              continue;
+            }
+            msg_delay[fd % NUMBER_OF_CLIENTS] = now;
 
             printf("%s sent: %s\n", names[fd % NUMBER_OF_CLIENTS], buffer);
             //server_logic(fd, buffer, &master, max_fd, listen_socket, clients);
