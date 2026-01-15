@@ -162,7 +162,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++) {
     if (FD_ISSET(i, master)) {
-      if (i != listen_socket) {
+      if (i != listen_socket && i != fd) { //add i != fd if repeating msg
         send(i, response, strlen(response), 0);
         }
       }
