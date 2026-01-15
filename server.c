@@ -131,7 +131,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     }
     if(strncasecmp(message, "/NAME ", 6) == 0){
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
-      snprintf(response, sizeof(response), "Renamed to: %s", names[fd % NUMBER_OF_CLIENTS]);
+      snprintf(response, sizeof(response), "Renamed to: %s\n", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
       return;
     }
@@ -144,6 +144,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
           strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
       }
+      strncat(response, "\n", 2);
       send(fd, response, strlen(response), 0);
       return;
     }
@@ -156,7 +157,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
       // return;
     }
   } else{
-    snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
+    snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
     send(fd, response, strlen(response), 0);
   }
 

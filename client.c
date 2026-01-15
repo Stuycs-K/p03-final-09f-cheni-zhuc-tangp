@@ -49,7 +49,7 @@ void clientLogic(int server_socket){
         exit(1);
       }
       if (recv_code > 0) response[recv_code] = '\0';
-      wprintw(textbox, "%s\n", response); // fix later - increment row by amount of line breaks in response
+      wprintw(textbox, "%s", response); 
       wrefresh(textbox);
     }
 
