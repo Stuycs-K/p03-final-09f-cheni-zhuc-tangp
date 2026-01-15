@@ -82,7 +82,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
 
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
-      } 
+      }
       else {
         snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)", filepath, file_size);
         add_file_info_to_list(filepath, file_size);
@@ -133,7 +133,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
     }
     if(strncasecmp(message, "/NAME ", 6) == 0){
       strncpy(names[fd % NUMBER_OF_CLIENTS], message + 6, 255);
-      snprintf(response, sizeof(response), "Renamed to: %s", names[fd % NUMBER_OF_CLIENTS]);
+      snprintf(response, sizeof(response), "Renamed to: %s\n", names[fd % NUMBER_OF_CLIENTS]);
       send(fd, response, strlen(response), 0);
       return;
     }
@@ -146,25 +146,24 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
           strncat(response, " ", sizeof(response) - strlen(response) - 1);
         }
       }
+      strncat(response, "\n", 2);
       send(fd, response, strlen(response), 0);
       return;
     }
     if (strncasecmp(message, "/QUIT", 5) == 0) {
-      strcpy(response, "Quitting...");
-      send(fd, response, strlen(response), 0);
+      snprintf(response, sizeof(response), "[%s] has disconnected from the server", names[fd % NUMBER_OF_CLIENTS]);
       close(fd);
       FD_CLR(fd, master);
-      return;
     }
   } else{
-    snprintf(response, sizeof(response), "[%s]: %s", names[fd % NUMBER_OF_CLIENTS], message);
+    snprintf(response, sizeof(response), "[%s]: %s\n", names[fd % NUMBER_OF_CLIENTS], message);
     send(fd, response, strlen(response), 0);
   }
 
   //loop through all fd here
   for (int i = 0; i <= max_fd; i++) {
     if (FD_ISSET(i, master)) {
-      if (i != listen_socket && i != fd) { //add i != fd if repeating msg
+      if (i != listen_socket && i != fd) {
         send(i, response, strlen(response), 0);
         }
       }
@@ -181,7 +180,7 @@ int main(int argc, char *argv[] ) {
 
   listen_socket = server_setup();
    //for(int i=0; i<NUMBER_OF_CLIENTS; i++) strcpy(clients[i].name, "Unnamed");
- 
+
   fd_set read_fds;
   FD_ZERO(&master);
   FD_SET(listen_socket, &master);
@@ -213,6 +212,7 @@ int main(int argc, char *argv[] ) {
           if (recv_code <= 0) {
             //printf("Client disconnected: %s\n", clients[fd % NUMBER_OF_CLIENTS].name);
             printf("Client disconnected: %s\n", names[fd % NUMBER_OF_CLIENTS]);
+            // snprintf(response, sizeof(response), "[%s] has disconnected", names[fd % NUMBER_OF_CLIENTS]);
             close(fd);
             FD_CLR(fd, &master);
           }
