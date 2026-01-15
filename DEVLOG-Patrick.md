@@ -26,3 +26,6 @@ Fixed QUIT to correctly quit(~5 minutes)
 ### 2026-01-13 - Added Sighandler and Fixed bugs
 Fixed issue with newline for client names(~10 minutes)
 Wrote Sighandler to handle graceful shutdowns(~30 minutes)
+
+### 2026-01-14 - Added Spam Protection
+Added spam protection so users can't flood the chat(~20 minutes)
