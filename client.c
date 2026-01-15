@@ -11,12 +11,11 @@ void clientLogic(int server_socket){
   wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
   cbreak();
   // raw(); // prevents signals from being entered
-  int row = 2;
   //noecho();
   refresh();
-  // scrollok(stdscr, TRUE);
-  scrollok(textbox, TRUE);
   textbox = newwin(getmaxy(stdscr)-4, getmaxx(stdscr)-2, 1, 1);
+  scrollok(stdscr, TRUE);
+  scrollok(textbox, TRUE);
   wprintw(textbox, "Connected to server. Type /help for commands.\n");
   while(1){
     wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
