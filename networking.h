@@ -26,4 +26,9 @@ struct client{
     char name[256];
     //other attributes
 };
+#define MAX_FILES 1000 
+struct file_info {
+    char filename[256];
+    long size;
+};
 #endif
