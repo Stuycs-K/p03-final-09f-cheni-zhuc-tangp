@@ -12,15 +12,15 @@ void clientLogic(int server_socket){
   cbreak();
   // raw(); // prevents signals from being entered
   int row = 2;
-  //noecho();
+  // noecho();
   refresh();
   textbox = newwin(getmaxy(stdscr)-4, getmaxx(stdscr)-2, 1, 1);
-  scrollok(textbox,TRUE);
+  // scrollok(textbox,TRUE);
   wprintw(textbox, "Connected to server. Type /help for commands.\n");
   while(1){
     wborder(stdscr, '|', '|', '-', '-', '+', '+', '+', '+');
     mvwin(textbox, 1, 1); // doesn't actually move, but sends to the top
-    for (int i = 1; i < getmaxx(stdscr)-1; i++){
+    for (int i = 1; i < getmaxx(stdscr)-1; i++){ //draw border
       mvprintw(getmaxy(stdscr)-3, i, "-");
       mvprintw(getmaxy(stdscr)-2, i, " ");
     }
@@ -39,22 +39,22 @@ void clientLogic(int server_socket){
       break;
     }
 
-    if(FD_ISSET(server_socket, &read_fds)) {
+    if(FD_ISSET(server_socket, &read_fds)) { // recieving messages
       int recv_code = recv(server_socket, response, sizeof(response) - 1, 0);
       err(recv_code, "In cli logic");
-      if (recv_code == 0){
+      if (recv_code == 0){ //server disconnects
         wprintw(textbox, "Server disconnected.\n");
         wrefresh(textbox);
         endwin();
         exit(1);
       }
-      if (recv_code > 0) response[recv_code] = '\0';
+      if (recv_code > 0) response[recv_code] = '\0'; // normal recieve behavior
       wprintw(textbox, "%s", response); 
       wrefresh(textbox);
     }
 
     if(FD_ISSET(STDIN_FILENO, &read_fds)) {
-      getstr(message);
+      getstr(message); //block until getting message
       message[strcspn(message, "\n")] = '\0';
 
       char * cmds[20] = {0};
@@ -69,7 +69,6 @@ void clientLogic(int server_socket){
         wprintw(textbox, "/list - view available files on server\n");
         wprintw(textbox, "/download [filename] - download a file from server\n");
         wprintw(textbox, "/quit - exit from the server\n");
-        row += 6;
         wrefresh(textbox);
       }
       else if (strcasecmp(message, "/LIST") == 0){
@@ -94,7 +93,7 @@ void clientLogic(int server_socket){
           wrefresh(textbox);
         }
 
-        snprintf(message, sizeof(message), "/upload %s %ld\n", cmds[1], stat_buffer.st_size);
+        snprintf(message, sizeof(message), "/upload %s %ld", cmds[1], stat_buffer.st_size);
         err(send(server_socket, message, strlen(message), 0), "In client logic"); //let server know file is coming
 
         char ack[256];
@@ -102,13 +101,6 @@ void clientLogic(int server_socket){
         ack[ack_len] = '\0';
 
         long sent = send_file(server_socket, cmds[1]); //actual while loop sending
-        //if (sent == -1){
-        //  wprintw(textbox, "Error uploading file: %s\n", cmds[1]);
-        //}
-        //else {
-        //  wprintw(textbox, "File uploaded successfully: %s (%ld bytes)\n", cmds[1], sent);
-        //}
-        //wrefresh(textbox);
       }
       else if ((strcasecmp(cmds[0], "/DOWNLOAD") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
