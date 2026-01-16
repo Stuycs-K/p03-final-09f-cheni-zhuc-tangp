@@ -1,6 +1,7 @@
 server
 client
 *.o
+*.received
 
 # Prerequisites
 *.d
