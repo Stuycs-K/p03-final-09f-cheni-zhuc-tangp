@@ -80,7 +80,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
 
       //long received = recieve_file_to_memory(fd, file_size);
 
-      if (file_size == -1){
+      if ( recieve_file_to_memory(fd, file_size) == NULL){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
       }
       else {
