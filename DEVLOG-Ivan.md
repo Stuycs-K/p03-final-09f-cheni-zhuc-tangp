@@ -31,3 +31,8 @@ clients now see their own messages after they get sent (10 min)
 
 ### 2026-01-14 - window
 window now scrolls properly (60 min)
+
+### 2026-01-15 - formatting
+rewrote merged code that stopped scrolling from working (10 min)
+changed client output to stop simultaneous inputs from stacking in output (10 min)
+adjusted quit to broadcast to other clients that one has disconnected (20 min)
