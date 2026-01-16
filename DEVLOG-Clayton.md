@@ -39,3 +39,7 @@ This document must be updated daily every time you finish a work session.
 - Designing file transfer: 30 min , tried several different ideas including making exclsuive socket connection for every file transfer and using syn acks to sync.
 - Added File transfer helpers: 10 min Parsing args for more than 1 parameter using arg_parse 
 - Building and rebuilding file transfer: 2 hours, could not figure out how to send uninterrupted file sends, reworked send and recieve_file with byte size, send command separate from file
+
+### 2026-1-15 - Debugged File Transfer
+- Moved File transfer to memory based: 60 min, upload to server, gets saved as memory block now instead of file
+- File display debug: 20 min, fixed ncurses display breaking when doing upload
