@@ -70,12 +70,40 @@ long send_file(int socket, char * filepath){
   return file_size;
 }
 
+char * recieve_file_to_memory(int socket, long file_size){
+  long remaining = file_size;
+  char * file_buffer = malloc(file_size);
+  if (!file_buffer) {
+    perror("malloc error");
+    return NULL;
+  }
+  long total_received = 0;
+
+  while (remaining > 0){
+    long to_recv = (remaining < BUFFER_SIZE ? remaining : BUFFER_SIZE); //we don't have min?
+    size_t n_wrote = recv(socket, file_buffer, to_recv, 0);
+
+    if (n_wrote <= 0){
+      //fclose(file);
+      perror("Receive file error");
+      return NULL;
+    }
+
+    memcpy(file_buffer + total_received, file_buffer, n_wrote); //adding offset with total
+    total_received += n_wrote;
+    remaining -= n_wrote;  
+  }
+
+  //fclose(file_buffer);
+  return file_buffer;
+}
+
 //modify recieve_file
 int receive_file(int socket, char * filepath, long file_size){
   long remaining = file_size;
   char file_buffer[BUFFER_SIZE];
 
-  strcat(filepath, ".received"); //otherwise overwrites existing file on local
+  //strcat(filepath, ".received"); //otherwise overwrites existing file on local
   FILE *file = fopen(filepath, "wb"); 
   if (!file) {
     perror("fopen error");

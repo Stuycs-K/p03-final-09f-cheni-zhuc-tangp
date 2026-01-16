@@ -78,7 +78,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
 
       send(fd, "ACK\n", 4, 0);
 
-      long received = receive_file(fd, filepath, file_size);
+      long received = recieve_file_to_memory(fd, file_size);
 
       if (file_size == -1){
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);

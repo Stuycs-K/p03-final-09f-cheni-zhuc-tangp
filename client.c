@@ -82,7 +82,7 @@ void clientLogic(int server_socket){
       }
       else if ((strcasecmp(cmds[0], "/UPLOAD") == 0)){
         int argc = get_arr_len(cmds);
-        if (argc != 2){ //wrong syntax
+        if (argc != 2){ 
           wprintw(textbox, "Error: Invalid syntax.\n");
           wprintw(textbox, "Usage: /upload [filepath]\n");
           wrefresh(textbox);
@@ -92,6 +92,7 @@ void clientLogic(int server_socket){
         if (stat(cmds[1], &stat_buffer) == -1){
           wprintw(textbox, "Error: File does not exist: %s\n", cmds[1]);
           wrefresh(textbox);
+          message[0] = '\0'; //clear the message, does not work
         }
 
         snprintf(message, sizeof(message), "/upload %s %ld\n", cmds[1], stat_buffer.st_size);
