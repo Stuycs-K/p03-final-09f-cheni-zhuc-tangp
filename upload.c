@@ -39,7 +39,7 @@ long send_file(int socket, char * filepath){
     return -1;
   }
 
-  printf("Sending file: %s (%ld bytes)\n", filepath, file_size);
+  //printf("Sending file: %s (%ld bytes)\n", filepath, file_size);
 
   while(n_read = fread(file_buffer, 1, BUFFER_SIZE, file)) {
     //while(total < n_read) 
