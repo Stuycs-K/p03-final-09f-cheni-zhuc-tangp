@@ -11,11 +11,17 @@ We will build a terminal-based, multi-client chat system with a central server. 
 
 ### Instructions:
 
-The user compile server and client, server is ran with ./server, client is ran with ./client IP
-The user interacts with the program through COMMAND ARG ie NAME clayt, MSG wassabi
+To compile, do 'make compile'. Server is ran with ./server, client is ran with ./client IP
+The user interacts with the program through COMMAND ARG:
+- /name [user] - change the name you are displayed 
+- /who - display every user connected to the server
+- /upload [filepath] - upload a file to the server
+- /list - view available files on server
+- /download [filename] - download a file from server
+- /quit - exit from the server
 
 ### Resources/ References:
-
+- Ncurses 
 - Beej's guide
 - konstantinnovation.github.io
 - https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/ 
