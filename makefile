@@ -21,4 +21,4 @@ networking.o: networking.c networking.h
 	gcc -c networking.c
 
 clean:
-	rm -f *.o server client
+	rm -f *.o server client *.received

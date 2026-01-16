@@ -57,7 +57,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
         strcpy(response, "No files available on sever.\n");
       } else {
         for (int i = 0; i < file_count; i++){
-          char file_line[512];
+          char file_line[512]={0};
           snprintf(file_line, sizeof(file_line), "%d. %s (%ld bytes)\n", i+1, server_files[i].filename, server_files[i].size);
           strncat(response, file_line, sizeof(response) - strlen(response) - 1);
         }
@@ -84,7 +84,7 @@ void server_logic(int fd, char * message, fd_set * master, int max_fd, int liste
         snprintf(response, sizeof(response), "Error uploading file: %s", filepath);
       }
       else {
-        snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)", filepath, file_size);
+        snprintf(response, sizeof(response), "Uploaded successfully: %s (%ld bytes)\n", filepath, file_size);
         add_file_info_to_list(filepath, file_size);
       }
 
