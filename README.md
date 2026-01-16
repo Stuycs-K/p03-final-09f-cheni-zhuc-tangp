@@ -19,3 +19,7 @@ The user interacts with the program through COMMAND ARG ie NAME clayt, MSG wassa
 - Beej's guide
 - konstantinnovation.github.io
 - https://tldp.org/HOWTO/NCURSES-Programming-HOWTO/ 
+
+### Video Presentation Link
+
+https://www.youtube.com/watch?v=geNLJPPpDl8
