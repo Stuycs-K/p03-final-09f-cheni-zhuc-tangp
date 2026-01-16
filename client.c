@@ -113,7 +113,7 @@ void clientLogic(int server_socket){
       }
       else if ((strcasecmp(cmds[0], "/DOWNLOAD") == 0)){ //not implemented yet
         int argc = get_arr_len(cmds);
-        if (argc != 2){ //wrong syntax
+        if (argc != 2){ 
           wprintw(textbox, "Usage: /download [filepath]\n");
           wrefresh(textbox);
           continue;

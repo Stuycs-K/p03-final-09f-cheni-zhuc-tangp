@@ -98,7 +98,11 @@ char * recieve_file_to_memory(int socket, long file_size){
   return file_buffer;
 }
 
-//modify recieve_file
+char * send_file_from_memory(int socket, char * file_data, long fiel_size){
+
+}
+
+
 int receive_file(int socket, char * filepath, long file_size){
   long remaining = file_size;
   char file_buffer[BUFFER_SIZE];
